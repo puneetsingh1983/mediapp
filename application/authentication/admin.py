@@ -6,5 +6,10 @@ from django.contrib.auth.admin import UserAdmin
 
 from .models import AppUserModel
 
+
+class AppUserAdmin(UserAdmin):
+    list_display = ('email', 'mobile', 'user_type', 'user_status')
+    ordering = ('email', 'mobile')
+
 # Register your models here.
-# admin.site.register(AppUserModel, UserAdmin)
+admin.site.register(AppUserModel, AppUserAdmin)

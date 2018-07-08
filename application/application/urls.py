@@ -15,7 +15,12 @@ Including another URLconf
 """
 from django.conf.urls import url
 from django.contrib import admin
+from authentication import urls as user_urls
+
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
 ]
+
+
+urlpatterns = urlpatterns + user_urls.urlpatterns

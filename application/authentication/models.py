@@ -32,17 +32,21 @@ class AppUserManager(BaseUserManager):
         user = self.model(email=self.normalize_email(email),
                           mobile=mobile, user_type=user_type,
                           user_status=user_status)
+        user.set_password(password)
         user.save()
         return user
 
-    def create_superuser(self, email, mobile, user_type, user_status,
+    def create_superuser(self, email, mobile, user_type=None, user_status=None,
                          password=None):
+        import pdb; pdb.set_trace()
         self._valdiate(email, mobile)
         user = self.model(email=self.normalize_email(email),
-                          mobile=mobile, user_type=user_type,
-                          user_status=user_status)
+                          mobile=mobile, user_type=user_type or USER_TYPE[0][0],
+                          user_status=user_status or USER_STATUSES[0][0],)
+        user.set_password(password)
         user.is_admin = True
         user.is_staff = True
+        user.is_superuser = True
         user.save()
         return user
 
@@ -77,5 +81,16 @@ class AppUserModel(AbstractBaseUser, PermissionsMixin):
     def modify_user(self):
         pass
 
+    def get_full_name(self):
+        return self.email
 
+    def get_short_name(self):
+        return self.email
 
+    # this methods are require to login super user from admin panel
+    def has_perm(self, perm, obj=None):
+        return self.is_staff
+
+    # this methods are require to login super user from admin panel
+    def has_module_perms(self, app_label):
+        return self.is_staff
