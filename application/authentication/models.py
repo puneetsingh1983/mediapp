@@ -27,21 +27,20 @@ class AppUserManager(BaseUserManager):
         if not mobile:
             raise ValueError("User must have mobile number")
 
-    def create_user(self,email, mobile, user_type, user_status, password=None):
+    def create_user(self,email, mobile, user_type, user_status, password=None, **kwargs):
         self._valdiate(email, mobile)
         user = self.model(email=self.normalize_email(email),
-                          mobile=mobile, user_type=user_type,
-                          user_status=user_status)
+                          mobile=mobile, user_type=user_type or USER_TYPE[-1][0],
+                          user_status=user_status or USER_STATUSES[0][0])
         user.set_password(password)
         user.save()
         return user
 
     def create_superuser(self, email, mobile, user_type=None, user_status=None,
                          password=None):
-        import pdb; pdb.set_trace()
         self._valdiate(email, mobile)
         user = self.model(email=self.normalize_email(email),
-                          mobile=mobile, user_type=user_type or USER_TYPE[0][0],
+                          mobile=mobile, user_type=user_type or USER_TYPE[0][-1],
                           user_status=user_status or USER_STATUSES[0][0],)
         user.set_password(password)
         user.is_admin = True
@@ -67,7 +66,7 @@ class AppUserModel(AbstractBaseUser, PermissionsMixin):
     user_status = models.IntegerField(choices=USER_STATUSES, default=1)
     created_on = models.DateTimeField(auto_now_add=True)
     modifile_on = models.DateTimeField(auto_now=True)
-    reason_for_modification = models.TextField(null=True)
+    reason_for_modification = models.TextField(null=True, blank=True)
     objects = AppUserManager()
 
     USERNAME_FIELD = 'email'

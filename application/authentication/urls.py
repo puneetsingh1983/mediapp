@@ -9,5 +9,5 @@ router = routers.DefaultRouter()
 router.register(r'users', AppUserViewSet)
 
 urlpatterns = [
-    url(r'^api/v1/authentication', include(router.urls)),
+    url(r'^api/v1/authentication/', include(router.urls)),
 ]
