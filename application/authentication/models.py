@@ -7,12 +7,13 @@ from django.contrib.auth.models import (
 from django.core.validators import RegexValidator
 
 
-USER_STATUSES = ((1, 'Approval PENDING'),
+USER_STATUSES = ((1, 'Approval Pending'),
                  (2, 'Approved'),
                  (3, 'Rejected'),
                  (4, 'On Hold'))
 
-USER_TYPE = ((1, 'Doctor'),
+USER_TYPE = ((0, ' -- '),
+             (1, 'Doctor'),
              (2, 'Health Worker'),
              (3, 'Patient'),
              (4, 'Medical Representative'),
@@ -27,20 +28,20 @@ class AppUserManager(BaseUserManager):
         if not mobile:
             raise ValueError("User must have mobile number")
 
-    def create_user(self,email, mobile, user_type, user_status, password=None, **kwargs):
-        self._valdiate(email, mobile)
-        user = self.model(email=self.normalize_email(email),
-                          mobile=mobile, user_type=user_type or USER_TYPE[-1][0],
+    def create_user(self,username, mobile, user_type, user_status, password=None, **kwargs):
+        self._valdiate(username, mobile)
+        user = self.model(username=self.normalize_email(username),
+                          mobile=mobile, user_type=user_type or USER_TYPE[0][0],
                           user_status=user_status or USER_STATUSES[0][0])
         user.set_password(password)
         user.save()
         return user
 
-    def create_superuser(self, email, mobile, user_type=None, user_status=None,
+    def create_superuser(self, username, mobile, user_type=None, user_status=None,
                          password=None):
-        self._valdiate(email, mobile)
-        user = self.model(email=self.normalize_email(email),
-                          mobile=mobile, user_type=user_type or USER_TYPE[0][-1],
+        self._valdiate(username, mobile)
+        user = self.model(username=self.normalize_email(username),
+                          mobile=mobile, user_type=user_type or USER_TYPE[0][0],
                           user_status=user_status or USER_STATUSES[0][0],)
         user.set_password(password)
         user.is_admin = True
@@ -52,7 +53,7 @@ class AppUserManager(BaseUserManager):
 
 # User model
 class AppUserModel(AbstractBaseUser, PermissionsMixin):
-    email = models.EmailField(verbose_name="Email Address", unique=True)
+    username = models.EmailField(verbose_name="Email Address", unique=True)
     mobile = models.CharField(
         max_length=10,
         validators=[RegexValidator(regex="^\d{10}$",
@@ -69,7 +70,7 @@ class AppUserModel(AbstractBaseUser, PermissionsMixin):
     reason_for_modification = models.TextField(null=True, blank=True)
     objects = AppUserManager()
 
-    USERNAME_FIELD = 'email'
+    USERNAME_FIELD = 'username'
     REQUIRED_FIELDS = ['mobile',]
 
     class Meta:
@@ -81,10 +82,10 @@ class AppUserModel(AbstractBaseUser, PermissionsMixin):
         pass
 
     def get_full_name(self):
-        return self.email
+        return self.username
 
     def get_short_name(self):
-        return self.email
+        return self.username
 
     # this methods are require to login super user from admin panel
     def has_perm(self, perm, obj=None):

@@ -23,9 +23,27 @@ class AppUserViewSet(ModelViewSet):
 
     @transaction.atomic
     def update(self, request, pk=None):
-        pass
+        request_data = request.data
+        user_status = request_data.get('user_status')
+        user_type = request_data.get("user_type")
+        mobile = request_data.get("mobile")
+        target_user_id = request_data.get('target_user_id')
+        target_user = AppUserModel.objects.get(id=target_user_id)
+        if user_status:
+            target_user.user_status = user_status
+        if user_type:
+            target_user.user_type = user_type
+        if mobile:
+            target_user.mobile = mobile
+        target_user.save()
 
     @transaction.atomic
     def partial_update(self, request, pk=None):
-        pass
+        request_data = request.data
+        user_status = request_data.get('user_status')
+        target_user_id = request_data.get('target_user_id')
+        target_user = AppUserModel.objects.get(id=target_user_id)
+        target_user.user_status = user_status
+        target_user.save()
+
 
