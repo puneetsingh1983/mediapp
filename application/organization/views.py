@@ -1,6 +1,18 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-from django.shortcuts import render
+from rest_framework.viewsets import ModelViewSet
 
-# Create your views here.
+from .models import OrganizationType, Organization
+from .serializers import OrganizationSerializer, OrganizationTypeSerializer
+
+
+# views
+class OrganizationViewSet(ModelViewSet):
+    queryset = Organization.objects.all()
+    serializer_class = OrganizationSerializer
+
+
+class OrganizationTypeViewSet(ModelViewSet):
+    queryset = OrganizationType.objects.all()
+    serializer_class = OrganizationTypeSerializer

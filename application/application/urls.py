@@ -16,6 +16,8 @@ Including another URLconf
 from django.conf.urls import url
 from django.contrib import admin
 from authentication import urls as user_urls
+from organization import urls as organizatoin_urls
+from userprofile import urls as profile_urls
 
 
 urlpatterns = [
@@ -23,4 +25,4 @@ urlpatterns = [
 ]
 
 
-urlpatterns = urlpatterns + user_urls.urlpatterns
+urlpatterns = urlpatterns + user_urls.urlpatterns + organizatoin_urls.urlpatterns + profile_urls.urlpatterns

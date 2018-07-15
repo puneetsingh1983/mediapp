@@ -6,7 +6,7 @@ from .views import AppUserViewSet
 
 
 router = routers.DefaultRouter()
-router.register(r'users', AppUserViewSet)
+router.register(r'user', AppUserViewSet)
 
 urlpatterns = [
     url(r'^api/v1/authentication/', include(router.urls)),

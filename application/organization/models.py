@@ -5,21 +5,28 @@ from django.db import models
 
 from utility.models import BaseModel, Qualification, Address
 
+
 # Create your models here.
 class OrganizationType(models.Model):
     text = models.CharField(max_length=100, unique=True)
+
+    def __str__(self):
+        return self.text
 
 
 class Organization(BaseModel):
     name = models.CharField(max_length=100)
     address = models.ForeignKey(Address)
     contact_number = models.IntegerField(max_length=10)
-    contact_person = models.CharField(max_length=50)
+    contact_person = models.CharField(max_length=50, null=True, blank=True)
     email = models.EmailField()
     associated_company = models.ForeignKey('self', null=True, blank=True)
     gst_no = models.CharField(max_length=15)
     license_no = models.CharField(max_length=25)
     head_of_department = models.CharField(max_length=50)
     qualifications = models.ManyToManyField(Qualification)
-    license_doc = models.FileField(upload_to='documents/org/%Y/%M/%D/')
+    license_doc = models.FileField(upload_to='documents/org/%Y/%m/%d/')
     org_type = models.ForeignKey(OrganizationType)
+
+    def __str__(self):
+        return self.name

@@ -17,26 +17,44 @@ class State(models.Model):
     id = models.CharField(max_length=3, primary_key=True)
     name = models.CharField(max_length=20)
 
+    def __str__(self):
+        return self.name
+
 
 class Country(models.Model):
     id = models.CharField(max_length=3, primary_key=True)
     name = models.CharField(max_length=20)
 
+    def __str__(self):
+        return self.name
+
 
 class Qualification(models.Model):
     text = models.CharField(max_length=10, unique=True)
+
+    def __str__(self):
+        return self.text
 
 
 class Specialization(models.Model):
     text = models.CharField(max_length=50, unique=True)
 
+    def __str__(self):
+        return self.text
+
 
 class Research(models.Model):
     text = models.CharField(max_length=50, unique=True)
 
+    def __str__(self):
+        return self.text
+
 
 class BloodGroup(models.Model):
     type = models.CharField(max_length=50, unique=True)
+
+    def __str__(self):
+        return self.type
 
 
 class Address(models.Model):
@@ -46,9 +64,15 @@ class Address(models.Model):
     country = models.ForeignKey(Country)
     pincode = models.CharField(max_length=6)
 
+    def __str__(self):
+        return (self.address_line [:10] + ", "
+                + self.city + ", "
+                + self.state.name + ", "
+                + self.country.name)
+
 
 class Language(models.Model):
     text = models.CharField(max_length=15, unique=True)
 
-
-
+    def __str__(self):
+        return self.text

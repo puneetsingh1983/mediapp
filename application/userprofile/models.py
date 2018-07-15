@@ -14,6 +14,7 @@ GENDER = (('-', ' -- '),
           ('F', 'Female'),
           ('O', 'Other'))
 
+
 # Profiles
 class DoctorProfile(BaseModel):
     name = models.CharField(max_length=50)
@@ -30,7 +31,7 @@ class DoctorProfile(BaseModel):
     associated_with = models.ManyToManyField(Organization, null=True, blank=True)
     languages_can_speak = models.ManyToManyField(Language)
     resume = models.FileField(upload_to='documents/doctor/', null=True, blank=True)
-    #medical_registration_certificate
+    # medical_registration_certificate
     registration_certificate = models.FileField(upload_to='documents/doctor/')
     user_id = models.ForeignKey(AppUserModel)
     profile_pic = models.FileField(upload_to='documents/doctor/', null=True, blank=True)
@@ -40,6 +41,9 @@ class DoctorProfile(BaseModel):
         today = date.today()
         dob = self.dob
         return today.year - dob.year - ((today.month, today.day) < (dob.month, dob.day))
+
+    def __str__(self):
+        return self.name
 
 
 class PatientProfile(BaseModel):
@@ -63,6 +67,9 @@ class PatientProfile(BaseModel):
         today = date.today()
         dob = self.dob
         return today.year - dob.year - ((today.month, today.day) < (dob.month, dob.day))
+
+    def __str__(self):
+        self.name
 
 
 class HealthworkerProfile(BaseModel):
@@ -91,6 +98,9 @@ class HealthworkerProfile(BaseModel):
         dob = self.dob
         return today.year - dob.year - ((today.month, today.day) < (dob.month, dob.day))
 
+    def __str__(self):
+        self.name
+
 
 class MedicalRepresentative(BaseModel):
     name = models.CharField(max_length=50)
@@ -113,6 +123,9 @@ class MedicalRepresentative(BaseModel):
         dob = self.dob
         return today.year - dob.year - ((today.month, today.day) < (dob.month, dob.day))
 
+    def __str__(self):
+        self.name
+
 
 class Availability(BaseModel):
     place = models.ForeignKey(Organization)
@@ -121,3 +134,6 @@ class Availability(BaseModel):
     end_time = models.TimeField()
     doctor = models.ForeignKey(DoctorProfile, null=True, blank=True)
     healthworker = models.ForeignKey(HealthworkerProfile, null=True, blank=True)
+
+    def __str__(self):
+        self.place.name + " " + self.date_on + self.start_time
