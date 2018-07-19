@@ -69,7 +69,7 @@ class PatientProfile(BaseModel):
         return today.year - dob.year - ((today.month, today.day) < (dob.month, dob.day))
 
     def __str__(self):
-        self.name
+        return self.name
 
 
 class HealthworkerProfile(BaseModel):
@@ -99,7 +99,7 @@ class HealthworkerProfile(BaseModel):
         return today.year - dob.year - ((today.month, today.day) < (dob.month, dob.day))
 
     def __str__(self):
-        self.name
+        return self.name
 
 
 class MedicalRepresentative(BaseModel):
@@ -124,7 +124,7 @@ class MedicalRepresentative(BaseModel):
         return today.year - dob.year - ((today.month, today.day) < (dob.month, dob.day))
 
     def __str__(self):
-        self.name
+        return self.name
 
 
 class Availability(BaseModel):
@@ -136,4 +136,4 @@ class Availability(BaseModel):
     healthworker = models.ForeignKey(HealthworkerProfile, null=True, blank=True)
 
     def __str__(self):
-        self.place.name + " " + self.date_on + self.start_time
+        return self.place.name + " " + self.date_on + self.start_time

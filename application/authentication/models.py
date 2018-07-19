@@ -22,14 +22,18 @@ USER_TYPE = ((0, ' -- '),
 
 # User model manager
 class AppUserManager(BaseUserManager):
-    def _valdiate(self, email, mobile):
+    """Application user model manager"""
+    @staticmethod
+    def validate(email, mobile, password):
         if not email:
             raise ValueError("User must have email address")
         if not mobile:
             raise ValueError("User must have mobile number")
+        if not password:
+            raise ValueError("User must have password")
 
-    def create_user(self,username, mobile, user_type, user_status, password=None, **kwargs):
-        self._valdiate(username, mobile)
+    def create_user(self, username, mobile, user_type, user_status, password, **kwargs):
+        self.validate(username, mobile, password)
         user = self.model(username=self.normalize_email(username),
                           mobile=mobile, user_type=user_type or USER_TYPE[0][0],
                           user_status=user_status or USER_STATUSES[0][0])
@@ -37,9 +41,9 @@ class AppUserManager(BaseUserManager):
         user.save()
         return user
 
-    def create_superuser(self, username, mobile, user_type=None, user_status=None,
-                         password=None):
-        self._valdiate(username, mobile)
+    def create_superuser(self, username, mobile, password=None, user_type=None,
+                         user_status=None):
+        self.validate(username, mobile)
         user = self.model(username=self.normalize_email(username),
                           mobile=mobile, user_type=user_type or USER_TYPE[0][0],
                           user_status=user_status or USER_STATUSES[0][0],)
@@ -53,6 +57,7 @@ class AppUserManager(BaseUserManager):
 
 # User model
 class AppUserModel(AbstractBaseUser, PermissionsMixin):
+    """Application use model"""
     username = models.EmailField(verbose_name="Email Address", unique=True)
     mobile = models.CharField(
         max_length=10,
@@ -63,7 +68,7 @@ class AppUserModel(AbstractBaseUser, PermissionsMixin):
     is_admin = models.BooleanField(default=False)
     is_staff = models.BooleanField(default=False)
     is_active = models.BooleanField(default=True)
-    user_type = models.IntegerField(choices=USER_TYPE, default=1)
+    user_type = models.IntegerField(choices=USER_TYPE, default=0)
     user_status = models.IntegerField(choices=USER_STATUSES, default=1)
     created_on = models.DateTimeField(auto_now_add=True)
     modifile_on = models.DateTimeField(auto_now=True)

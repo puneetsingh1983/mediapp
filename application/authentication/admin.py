@@ -14,13 +14,9 @@ class AppUserCreationForm(UserCreationForm):
     form a provided email and password.
     """
 
-    def __init__(self, *args, **kargs):
-        super(AppUserCreationForm, self).__init__(*args, **kargs)
-
     class Meta(UserCreationForm.Meta):
         model = AppUserModel
-        fields = ('username', 'mobile', 'password2', 'is_active', 'is_staff', 'is_superuser')
-        # field_classes = {}
+        fields = '__all__'
 
 
 class AppUserChangeForm(UserChangeForm):
@@ -30,12 +26,9 @@ class AppUserChangeForm(UserChangeForm):
     password hash display field.
     """
 
-    def __init__(self, *args, **kargs):
-        super(AppUserChangeForm, self).__init__(*args, **kargs)
-
-    class Meta:
+    class Meta(UserChangeForm.Meta):
         model = AppUserModel
-        fields = ('username', 'mobile', 'user_type', 'user_status')
+        fields = '__all__'
 
 
 class AppUserAdmin(UserAdmin):
@@ -46,10 +39,10 @@ class AppUserAdmin(UserAdmin):
                                        'groups', 'user_permissions')}),
         ('Important dates', {'fields': ('last_login', )}),
     )
-    add_filedsets = (
+    add_fieldsets = (
         (None, {
             'classes': ('wide',),
-            'fields': ('username', 'mobile', 'password', 'password2', 'is_active', 'is_staff', 'is_superuser')}
+            'fields': ('username', 'mobile', 'password1', 'password2', 'is_active', 'is_staff', 'is_superuser')}
          ),
     )
 

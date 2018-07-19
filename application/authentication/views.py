@@ -2,14 +2,19 @@
 from __future__ import unicode_literals
 from django.db import transaction
 from rest_framework.viewsets import ModelViewSet
+from rest_framework.views import APIView
+from rest_framework.permissions import IsAuthenticated
+
 from .serializers import AppUserModelSerializer
 from .models import AppUserModel
+from commons.permissions import UserAccessPermission
 
 
 # Create your views here.
 class AppUserViewSet(ModelViewSet):
     queryset = AppUserModel.objects.all()
     serializer_class = AppUserModelSerializer
+    permission_classes = (IsAuthenticated, UserAccessPermission)
 
     @transaction.atomic
     def create(self, request):
@@ -39,11 +44,16 @@ class AppUserViewSet(ModelViewSet):
 
     @transaction.atomic
     def partial_update(self, request, pk=None):
+        """Partial updates"""
         request_data = request.data
         user_status = request_data.get('user_status')
         target_user_id = request_data.get('target_user_id')
         target_user = AppUserModel.objects.get(id=target_user_id)
         target_user.user_status = user_status
         target_user.save()
+
+    def destroy(self, request):
+        """Destroy user"""
+        pass
 
 
