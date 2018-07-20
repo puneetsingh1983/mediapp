@@ -4,6 +4,7 @@ from django.db import transaction
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
+from rest_framework_jwt.authentication import JSONWebTokenAuthentication
 
 from .serializers import AppUserModelSerializer
 from .models import AppUserModel
@@ -14,14 +15,15 @@ from commons.permissions import UserAccessPermission
 class AppUserViewSet(ModelViewSet):
     queryset = AppUserModel.objects.all()
     serializer_class = AppUserModelSerializer
-    permission_classes = (IsAuthenticated, UserAccessPermission)
+    permission_classes = (IsAuthenticated, UserAccessPermission,)
+    # authentication_classes = (JSONWebTokenAuthentication,)
 
     @transaction.atomic
     def create(self, request):
         request_data = request.data
         request_data.setdefault("is_staff", True)
         request_data.setdefault("is_admin", False)
-        request_data.setdefault("user_type", 5)
+        request_data.setdefault("user_type", 0)
         request_data.setdefault("user_status", 1)
         _user = AppUserModel.objects.create_user(**request_data)
         _user.save()

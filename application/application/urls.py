@@ -15,13 +15,21 @@ Including another URLconf
 """
 from django.conf.urls import url
 from django.contrib import admin
+from rest_framework_jwt.views import obtain_jwt_token
+from rest_framework_jwt.views import verify_jwt_token
+from rest_framework_swagger.views import get_swagger_view
 from authentication import urls as user_urls
 from organization import urls as organizatoin_urls
 from userprofile import urls as profile_urls
 
+api_endpoints = get_swagger_view(title='Application API Endpoints')
+
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
+    url(r'^api-token-auth/', obtain_jwt_token),
+    url(r'^verify_jwt_token/', verify_jwt_token),
+    url(r'^$', api_endpoints)
 ]
 
 

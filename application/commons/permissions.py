@@ -10,4 +10,4 @@ class UserAccessPermission(permissions.BasePermission):
 
     def has_permission(self, request, view):
         # only admin user can add, update or delete an user
-        return request.method in permissions.SAFE_METHODS or request.user.is_admin
+        return request.method in permissions.SAFE_METHODS or (request.user and request.user.is_admin)

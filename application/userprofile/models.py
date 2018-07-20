@@ -33,7 +33,7 @@ class DoctorProfile(BaseModel):
     resume = models.FileField(upload_to='documents/doctor/', null=True, blank=True)
     # medical_registration_certificate
     registration_certificate = models.FileField(upload_to='documents/doctor/')
-    user_id = models.ForeignKey(AppUserModel)
+    user = models.ForeignKey(AppUserModel)
     profile_pic = models.FileField(upload_to='documents/doctor/', null=True, blank=True)
 
     @property
@@ -59,7 +59,7 @@ class PatientProfile(BaseModel):
     height = models.PositiveIntegerField(help_text="in Centimeters")
     aadhaar_no = models.PositiveIntegerField()
     alternate_mobile_no = models.PositiveIntegerField(null=True, blank=True)
-    user_id = models.ForeignKey(AppUserModel)
+    user = models.ForeignKey(AppUserModel)
     profile_pic = models.FileField(upload_to='documents/patient/')
 
     @property
@@ -87,7 +87,7 @@ class HealthworkerProfile(BaseModel):
     resume = models.FileField(upload_to='documents/healthworker/', null=True, blank=True)
     #medical_registration_certificate
     registration_certificate = models.FileField(upload_to='documents/healthworker/')
-    user_id = models.ForeignKey(AppUserModel)
+    user = models.ForeignKey(AppUserModel)
     created_on = models.DateTimeField(auto_now_add=True)
     modified_on = models.DateTimeField(auto_now=True)
     profile_pic = models.FileField(upload_to='documents/healthworker/', null=True, blank=True)
@@ -112,7 +112,7 @@ class MedicalRepresentative(BaseModel):
     qualification = models.ManyToManyField(Qualification)
     associated_with = models.ManyToManyField(Organization)
     registration_certificate = models.FileField(upload_to='documents/medicalrepresentative/')
-    user_id = models.ForeignKey(AppUserModel)
+    user = models.ForeignKey(AppUserModel)
     created_on = models.DateTimeField(auto_now_add=True)
     modified_on = models.DateTimeField(auto_now=True)
     profile_pic = models.FileField(upload_to='documents/medicalrepresentative/', null=True, blank=True)
