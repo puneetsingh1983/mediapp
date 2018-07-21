@@ -43,7 +43,7 @@ class AppUserManager(BaseUserManager):
 
     def create_superuser(self, username, mobile, password=None, user_type=None,
                          user_status=None):
-        self.validate(username, mobile)
+        self.validate(username, mobile, password)
         user = self.model(username=self.normalize_email(username),
                           mobile=mobile, user_type=user_type or USER_TYPE[0][0],
                           user_status=user_status or USER_STATUSES[0][0],)

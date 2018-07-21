@@ -15,6 +15,8 @@ Including another URLconf
 """
 from django.conf.urls import url
 from django.contrib import admin
+from django.conf import settings
+from django.conf.urls.static import static
 from rest_framework_jwt.views import obtain_jwt_token
 from rest_framework_jwt.views import verify_jwt_token
 from rest_framework_swagger.views import get_swagger_view
@@ -30,7 +32,7 @@ urlpatterns = [
     url(r'^api-token-auth/', obtain_jwt_token),
     url(r'^verify_jwt_token/', verify_jwt_token),
     url(r'^$', api_endpoints)
-]
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 
 urlpatterns = urlpatterns + user_urls.urlpatterns + organizatoin_urls.urlpatterns + profile_urls.urlpatterns
