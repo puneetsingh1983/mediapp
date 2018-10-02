@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 from django.db import transaction
+from django.core.mail import send_mail
+
 from rest_framework.viewsets import ViewSet
 from rest_framework.response import Response
 from rest_framework import status
@@ -8,6 +10,7 @@ from rest_framework import status
 from .models import OTP
 from .serializers import OTPSerializer
 from commons.utils import is_valid_mobile
+from django.conf import settings
 
 
 class GenerateOTPViewSet(ViewSet):
@@ -19,6 +22,12 @@ class GenerateOTPViewSet(ViewSet):
         mobile = str(request_data.get("mobile"))
         if is_valid_mobile(mobile):
             otp_created = OTP.create_new(mobile)
+            send_mail("OTP generated for mobile " + mobile,
+                      "OTP: {} generated for your mobile no. {}. This OTP will expire in 2 mins.\n"
+                      "Please do not share this otp with anyone else.".format(
+                          otp_created.token, mobile),
+                      settings.EMAIL_HOST_USER,
+                      [settings.EMAIL_HOST_USER, ])
             return Response(data=OTPSerializer(otp_created).data, status=status.HTTP_201_CREATED)
         else:
             return Response(data={'error': 'Invalid mobile number'})

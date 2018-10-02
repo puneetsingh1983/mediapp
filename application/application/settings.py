@@ -150,3 +150,11 @@ REST_FRAMEWORK = {
 }
 
 DJANGO_OTP_SECRET_KEY = '9a91c220815f6f55888b337872a6c64c497245e3'
+
+EMAIL_USE_TLS = True
+# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_HOST_USER = 'no.reply.mediapp@gmail.com'
+EMAIL_HOST_PASSWORD = 'no.reply.mediapp1!'
+EMAIL_PORT = 587
+DEFAULT_FROM_EMAIL = 'no.reply.mediapp@gmail.com'
