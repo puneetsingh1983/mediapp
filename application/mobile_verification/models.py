@@ -11,7 +11,7 @@ from commons.validators import mobile_validator
 class OTP(BaseModel):
     """Model to capture mobile, generated OTP and verification status"""
     mobile = models.CharField(max_length=10, validators=[mobile_validator])
-    token = models.PositiveIntegerField(max_length=6, null=True, blank=True)
+    token = models.PositiveIntegerField(null=True, blank=True)
     verified = models.BooleanField(default=False)
 
     @classmethod
