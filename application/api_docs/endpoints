@@ -1,0 +1,14 @@
+"generate-otp": "http://localhost:8000/api/v1/mobile/generate-otp/"
+
+{
+"mobile": "9971336417",
+"otp": 883421
+}
+___________________________________________________________________
+
+"verify-otp": "http://localhost:8000/api/v1/mobile/verify-otp/"
+
+{
+"mobile": "9971336417",
+"otp": 883421
+}

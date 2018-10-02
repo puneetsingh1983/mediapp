@@ -23,6 +23,7 @@ from rest_framework_swagger.views import get_swagger_view
 from authentication import urls as user_urls
 from organization import urls as organizatoin_urls
 from userprofile import urls as profile_urls
+from mobile_verification import urls as verify_urls
 
 api_endpoints = get_swagger_view(title='Application API Endpoints')
 
@@ -36,3 +37,4 @@ urlpatterns = [
 
 
 urlpatterns = urlpatterns + user_urls.urlpatterns + organizatoin_urls.urlpatterns + profile_urls.urlpatterns
+urlpatterns = urlpatterns + verify_urls.urlpatterns

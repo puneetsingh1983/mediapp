@@ -16,6 +16,11 @@ class DoctorProfileViewSet(ModelViewSet):
     serializer_class = DoctorProfileSerializer
     filter_class = DoctorFilter
 
+    def create(self, request, *args, **kwargs):
+        request_data = request.data
+
+        _certificate = request_data.get('registration_certificate')
+
 
 class HealthworkerProfileViewSet(ModelViewSet):
     queryset = HealthworkerProfile.objects.all()

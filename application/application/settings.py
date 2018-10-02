@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'utility',
     'organization',
     'userprofile',
+    'mobile_verification'
 ]
 
 MIDDLEWARE = [
@@ -147,3 +148,5 @@ REST_FRAMEWORK = {
         'django_filters.rest_framework.DjangoFilterBackend',
     ),
 }
+
+DJANGO_OTP_SECRET_KEY = '9a91c220815f6f55888b337872a6c64c497245e3'
