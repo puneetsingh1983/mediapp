@@ -21,14 +21,21 @@ class GenerateOTPViewSet(ViewSet):
         request_data = request.data
         mobile = str(request_data.get("mobile"))
         if is_valid_mobile(mobile):
-            otp_created = OTP.create_new(mobile)
-            send_mail("OTP generated for mobile " + mobile,
-                      "OTP: {} generated for your mobile no. {}. This OTP will expire in 2 mins.\n"
-                      "Please do not share this otp with anyone else.".format(
-                          otp_created.token, mobile),
-                      settings.EMAIL_HOST_USER,
-                      [settings.EMAIL_HOST_USER, ])
-            return Response(data=OTPSerializer(otp_created).data, status=status.HTTP_201_CREATED)
+            if OTP.is_mobile_registered(mobile):
+                return Response(
+                    data={'mobile': mobile, 'is_registered': True},
+                    status=status.HTTP_200_OK)
+            else:
+                otp_created = OTP.create_new(mobile)
+                send_mail("OTP generated for mobile " + mobile,
+                          "OTP: {} generated for your mobile no. {}. This OTP will expire in 2 mins.\n"
+                          "Please do not share this otp with anyone else.".format(
+                              otp_created.token, mobile),
+                          settings.EMAIL_HOST_USER,
+                          [settings.EMAIL_HOST_USER, ])
+                return Response(
+                    data=OTPSerializer(otp_created).data,
+                    status=status.HTTP_201_CREATED)  # HTTP code 201 for newly created record
         else:
             return Response(data={'error': 'Invalid mobile number'})
 
