@@ -61,10 +61,12 @@ class AppUserModel(AbstractBaseUser, PermissionsMixin):
     username = models.EmailField(verbose_name="Email Address", unique=True)
     mobile = models.CharField(
         max_length=10,
-        validators=[RegexValidator(regex="^\d{10}$",
-                                   message="Mobile number must have 10 digits",
-                                   code="invalid_mobile")],
+        validators=[RegexValidator(
+            regex="^\d{10}$",
+            message="Mobile number must have 10 digits",
+            code="invalid_mobile")],
         unique=True)
+    imei = models.CharField(max_length=15, null=True, blank=True)
     is_admin = models.BooleanField(default=False)
     is_staff = models.BooleanField(default=False)
     is_active = models.BooleanField(default=True)
