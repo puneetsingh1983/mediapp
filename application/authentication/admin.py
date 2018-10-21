@@ -35,7 +35,7 @@ class AppUserAdmin(UserAdmin):
     fieldsets = (
         (None, {'fields': ('username', 'mobile', 'password')}),
         ('Personal info', {'fields': ('user_type', 'user_status')}),
-        ('Permissions', {'fields': ('is_active', 'is_staff', 'is_superuser',
+        ('Permissions', {'fields': ('is_active', 'is_staff', 'is_superuser', 'is_admin',
                                        'groups', 'user_permissions')}),
         ('Important dates', {'fields': ('last_login', )}),
     )
