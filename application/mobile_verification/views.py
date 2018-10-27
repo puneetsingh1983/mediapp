@@ -9,7 +9,7 @@ from rest_framework import status
 
 from .models import OTP
 from .serializers import OTPSerializer
-from commons.utils import is_valid_mobile
+from helper.utils import is_valid_mobile
 from django.conf import settings
 
 

@@ -42,7 +42,7 @@ INSTALLED_APPS = [
     'rest_framework_swagger',
     'django_filters',
     'authentication',
-    'utility',
+    'common',
     'organization',
     'userprofile',
     'mobile_verification'

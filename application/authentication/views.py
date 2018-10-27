@@ -10,7 +10,7 @@ from rest_framework import status
 
 from .serializers import AppUserModelSerializer
 from .models import AppUserModel
-from commons.permissions import IsAdministrator, IsSelfOrIsAdministrator
+from helper.permissions import IsAdministrator, IsSelfOrIsAdministrator
 
 
 # Create your views here.

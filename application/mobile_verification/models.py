@@ -3,9 +3,9 @@ from __future__ import unicode_literals
 
 from django.db import models
 
-from utility.models import BaseModel
-from commons.totp_generate_verify import TOTPVerification
-from commons.validators import mobile_validator
+from common.models import BaseModel
+from helper.totp_generate_verify import TOTPVerification
+from helper.validators import mobile_validator
 
 
 class OTP(BaseModel):
