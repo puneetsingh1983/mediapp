@@ -28,7 +28,7 @@ class AppUserViewSet(ModelViewSet):
         return super(self.__class__, self).list(request, *args, **kwargs)
 
     def get_permissions(self):
-        if self.action in ('retrieve', 'update', 'destroy', 'partial_update'):
+        if self.action in ('retrieve', 'update', 'destroy', 'partial_update', 'is_registered'):
             self.permission_classes = [IsAuthenticated, IsSelfOrIsAdministrator]
         elif self.action in ('activate_user',):
             self.permission_classes = [IsAuthenticated, IsAdministrator]
@@ -80,12 +80,23 @@ class AppUserViewSet(ModelViewSet):
         instance.save()
         return Response(data={'success': True}, status=status.HTTP_200_OK)
 
+    @action(methods=['get'], detail=False, url_name="is_registered")
+    def is_registered(self, request):
+        """Validate device. If device already registered then redirect to login screen"""
+
+        imei = request.GET.get('imei')
+        response_msg = {'is_registered': False}
+        if imei and AppUserModel.objects.filter(imei=int(imei)).exists():
+            response_msg = {'is_registered': True}
+
+        return Response(data=response_msg, status=status.HTTP_200_OK)
+
     @transaction.atomic
     def destroy(self, request, *args, **kwargs):
         """Inactivate user"""
 
         instance = self.get_object()
-        # instance.is_active = False
+        instance.is_active = False
         instance.save()
         return Response(data={'success': True}, status=status.HTTP_200_OK)
 

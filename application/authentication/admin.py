@@ -34,7 +34,7 @@ class AppUserChangeForm(UserChangeForm):
 class AppUserAdmin(UserAdmin):
     fieldsets = (
         (None, {'fields': ('username', 'mobile', 'password')}),
-        ('Personal info', {'fields': ('user_type', 'user_status')}),
+        ('Personal info', {'fields': ('user_type', 'user_status', 'imei')}),
         ('Permissions', {'fields': ('is_active', 'is_staff', 'is_superuser', 'is_admin',
                                        'groups', 'user_permissions')}),
         ('Important dates', {'fields': ('last_login', )}),

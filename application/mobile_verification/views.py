@@ -22,10 +22,12 @@ class GenerateOTPViewSet(ViewSet):
         mobile = str(request_data.get("mobile"))
         if is_valid_mobile(mobile):
             if OTP.is_mobile_registered(mobile):
+                # if mobile is already verified then no need to send OTP and verify OTP
                 return Response(
-                    data={'mobile': mobile, 'is_registered': True},
+                    data={'mobile': mobile, 'is_verified': True},
                     status=status.HTTP_200_OK)
             else:
+                # capture mobile number in our database for first time.
                 otp_created = OTP.create_new(mobile)
                 send_mail("OTP generated for mobile " + mobile,
                           "OTP: {} generated for your mobile no. {}. This OTP will expire in 2 mins.\n"
@@ -45,6 +47,7 @@ class VerifyOTPViewSet(ViewSet):
 
     @transaction.atomic
     def create(self, request):
+        """Verfiy OTP entered by user"""
         request_data = request.data
         mobile = str(request_data.get("mobile"))  # string
         token = int(request_data.get("otp"))  # integer
