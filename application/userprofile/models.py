@@ -2,6 +2,7 @@
 from __future__ import unicode_literals
 
 from django.db import models
+from django.core.validators import FileExtensionValidator
 
 from common.models import (BaseProfileModel, BaseModel, Qualification,
                            Specialization, Research, Language, BloodGroup,
@@ -20,6 +21,7 @@ class DoctorProfile(BaseProfileModel):
     associated_with = models.ManyToManyField(Organization, null=True, blank=True)
     languages_can_speak = models.ManyToManyField(Language)
     resume = models.FileField(upload_to='documents/doctor/', null=True, blank=True)
+                              # validators=[FileExtensionValidator(allowed_extensions=['pdf', 'doc', 'docx'])
     # medical_registration_certificate
     registration_certificate = models.FileField(upload_to='documents/doctor/')
     profile_pic = models.FileField(upload_to='documents/doctor/', null=True, blank=True)

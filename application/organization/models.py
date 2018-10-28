@@ -16,6 +16,7 @@ class OrganizationType(models.Model):
 
 
 class Organization(BaseModel):
+    """Organization Model. Ex- Hospital, Clinic, Digital Clinic or Pharmacy or Medical Store"""
     name = models.CharField(max_length=100)
     address = models.ForeignKey(Address)
     contact_no = models.CharField(max_length=10, validators=[mobile_validator])
@@ -23,7 +24,7 @@ class Organization(BaseModel):
     email = models.EmailField()
     associated_company = models.ForeignKey('self', null=True, blank=True)
     gst_no = models.CharField(max_length=15)
-    license_no = models.CharField(max_length=25)
+    license_no = models.CharField(max_length=25, help_text="Required for hospitals/clinics/medical-stores")
     head_of_department = models.CharField(max_length=50, null=True, blank=True)
     qualifications = models.ManyToManyField(Qualification)
     license_doc = models.FileField(upload_to='documents/org/%Y/%m/%d/')
