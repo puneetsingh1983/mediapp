@@ -32,3 +32,7 @@ class Organization(BaseModel):
 
     def __str__(self):
         return self.name
+
+    @classmethod
+    def get_organizations(cls, id_list):
+        return cls.objects.filter(id__in=id_list)

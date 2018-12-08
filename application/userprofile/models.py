@@ -13,13 +13,13 @@ from helper.validators import mobile_validator
 
 # Profiles
 class DoctorProfile(BaseProfileModel):
-    registration_number = models.CharField(max_length=25)
+    registration_number = models.CharField(max_length=25, unique=True)
     years_of_experience = models.IntegerField()
-    qualification = models.ManyToManyField(Qualification)
-    specialization = models.ManyToManyField(Specialization)
-    Research = models.ManyToManyField(Research, null=True, blank=True)
+    qualification = models.ManyToManyField(Qualification, null=True, blank=True)
+    specialization = models.ManyToManyField(Specialization, null=True, blank=True)
+    research = models.ManyToManyField(Research, null=True, blank=True)
     associated_with = models.ManyToManyField(Organization, null=True, blank=True)
-    languages_can_speak = models.ManyToManyField(Language)
+    languages_can_speak = models.ManyToManyField(Language, null=True, blank=True)
     resume = models.FileField(upload_to='documents/doctor/', null=True, blank=True)
                               # validators=[FileExtensionValidator(allowed_extensions=['pdf', 'doc', 'docx'])
     # medical_registration_certificate
@@ -31,6 +31,7 @@ class DoctorProfile(BaseProfileModel):
 
 
 class PatientProfile(BaseProfileModel):
+    # TODO- handling for multiple prescription and test repotrs
     case_summary = models.TextField(null=True, blank=True)
     blood_group = models.ForeignKey(BloodGroup)
     weight = models.PositiveIntegerField(help_text="in Kilogram")
@@ -103,3 +104,9 @@ class Availability(BaseModel):
 
     def __str__(self):
         return self.place.name + " " + self.date_on + self.start_time
+
+
+class TestModelBase64(models.Model):
+    profile_pic = models.FileField(upload_to='documents/testing/', null=True, blank=True)
+    name = models.CharField(max_length=10, null=True, blank=True)
+

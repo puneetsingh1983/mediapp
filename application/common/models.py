@@ -51,6 +51,10 @@ class Qualification(models.Model):
     def __str__(self):
         return self.text
 
+    @classmethod
+    def get_qualifications(cls, id_list):
+        return cls.objects.filter(id__in=id_list)
+
 
 class Specialization(models.Model):
     """Specialization Model. Ex- Pediatric, Orthopaedic Surgery, Gynecology etc"""
@@ -58,6 +62,10 @@ class Specialization(models.Model):
 
     def __str__(self):
         return self.text
+
+    @classmethod
+    def get_specializations(cls, id_list):
+        return cls.objects.filter(id__in=id_list)
 
 
 class Research(models.Model):
@@ -67,6 +75,10 @@ class Research(models.Model):
 
     def __str__(self):
         return self.text
+
+    @classmethod
+    def get_researches(cls, id_list):
+        return cls.objects.filter(id__in=id_list)
 
 
 class BloodGroup(models.Model):
@@ -99,6 +111,10 @@ class Language(models.Model):
 
     def __str__(self):
         return self.text
+
+    @classmethod
+    def get_languages(cls, id_list):
+        return cls.objects.filter(id__in=id_list)
 
 
 class BaseProfileModel(BaseModel):
