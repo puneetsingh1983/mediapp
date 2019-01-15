@@ -31,13 +31,15 @@ class DoctorProfile(BaseProfileModel):
 
 
 class PatientProfile(BaseProfileModel):
-    # TODO- handling for multiple prescription and test repotrs
+    # TODO- handling for multiple prescription and test reports
     case_summary = models.TextField(null=True, blank=True)
-    blood_group = models.ForeignKey(BloodGroup)
-    weight = models.PositiveIntegerField(help_text="in Kilogram")
-    height = models.PositiveIntegerField(help_text="in Centimeters")
+    blood_group = models.ForeignKey(BloodGroup, null=True, blank=True)
+    weight = models.PositiveIntegerField(help_text="in Kilogram", null=True, blank=True)
+    height = models.PositiveIntegerField(help_text="in Centimeters", null=True, blank=True)
     aadhaar_no = models.PositiveIntegerField(null=True, blank=True)
     alternate_mobile_no = models.PositiveIntegerField(null=True, blank=True)
+    profile_pic = models.FileField(upload_to='documents/healthworker/', null=True, blank=True)
+    languages_can_speak = models.ManyToManyField(Language)
 
     def __str__(self):
         return self.name
@@ -45,7 +47,7 @@ class PatientProfile(BaseProfileModel):
 
 class HealthworkerProfile(BaseProfileModel):
     registration_number = models.CharField(max_length=25)
-    years_of_experience = models.IntegerField()
+    years_of_experience = models.IntegerField(null=True, blank=True)
     qualification = models.ManyToManyField(Qualification)
     associated_with = models.ManyToManyField(Organization)
     languages_can_speak = models.ManyToManyField(Language)
@@ -64,6 +66,7 @@ class MedicalRepresentative(BaseProfileModel):
     registration_certificate = models.FileField(upload_to='documents/medicalrepresentative/')
     # user = models.ForeignKey(AppUserModel)
     profile_pic = models.FileField(upload_to='documents/medicalrepresentative/', null=True, blank=True)
+    languages_can_speak = models.ManyToManyField(Language)
 
     def __str__(self):
         return self.name

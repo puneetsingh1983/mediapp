@@ -4,6 +4,7 @@ from django.db import transaction
 from rest_framework.viewsets import ModelViewSet
 from rest_framework import status
 from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated
 
 from .models import (
     DoctorProfile, HealthworkerProfile, Availability, PatientProfile, MedicalRepresentative, TestModelBase64)
@@ -11,18 +12,26 @@ from .serializers import (
     DoctorProfileSerializer, HealthworkerProfileSerializer,
     AvailabilitySerializer, PatientProfileSerializer, MRProfileSerializer, TestModelBase64Serializer)
 from .filters import DoctorFilter, HealthworkerFilter, PatientFilter
-from common.models import Address
+from common.models import Address, BloodGroup
 from helper.file_handler import decode_base64
 from authentication.models import AppUserModel as UserModel
 from .utils import validate_n_get
-
+from helper.permissions import IsSelfOrIsAdministrator
 
 
 # views
 class DoctorProfileViewSet(ModelViewSet):
+    """
+    View to performs -
+        1. Return list of Doctors'
+        2. Create New Doctor profileupdate data
+        3. Update data for given doctor
+        4. Delete doctor profile
+    """
     queryset = DoctorProfile.objects.all()
     serializer_class = DoctorProfileSerializer
     filter_class = DoctorFilter
+    permission_classes = (IsAuthenticated, IsSelfOrIsAdministrator)
 
     @transaction.atomic
     def create(self, request, *args, **kwargs):
@@ -34,6 +43,9 @@ class DoctorProfileViewSet(ModelViewSet):
         profile_pic = request_data.get('profile_pic')
         request_data['profile_pic'] = decode_base64(profile_pic)
 
+        resume = request_data.get('resume')
+        request_data['resume'] = decode_base64(resume)
+
         try:
             request_data['address'] = Address.objects.get(id=request_data['address'])
             request_data['user'] = UserModel.objects.get(id=request_data['user'])
@@ -42,7 +54,6 @@ class DoctorProfileViewSet(ModelViewSet):
             Response(data={'error': 'Please provide valid address'}, status=status.HTTP_400_BAD_REQUEST)
         except UserModel.DoesNotExist:
             Response(data={'error': 'Please provide valid user'}, status=status.HTTP_400_BAD_REQUEST)
-
 
         qualifications = validate_n_get(
             class_name='Qualification', records_ids=request_data.pop("qualification"))
@@ -54,7 +65,7 @@ class DoctorProfileViewSet(ModelViewSet):
             class_name='Organization', records_ids=request_data.pop("associated_with"))
         languages_can_speak = validate_n_get(
             class_name='Language', records_ids=request_data.pop("languages_can_speak"))
-        
+
         # doctor_profile = DoctorProfile.objects.create(**request_data)
         doctor_profile = DoctorProfile(**request_data)
         doctor_profile.save()
@@ -64,21 +75,237 @@ class DoctorProfileViewSet(ModelViewSet):
         researches and doctor_profile.research.add(*researches)
         associated_with and doctor_profile.associated_with.add(*associated_with)
         languages_can_speak and doctor_profile.languages_can_speak.add(*languages_can_speak)
-        
+
         return Response(data={'success': True}, status=status.HTTP_201_CREATED)
 
+    @transaction.atomic
+    def update(self, request, *args, **kwargs):
+        instance = self.get_object()
+        request_data = request.data
+
+        certificate = request_data.get('registration_certificate')
+        if certificate:
+            instance.registration_certificate = decode_base64(certificate)
+
+        profile_pic = request_data.get('profile_pic')
+        if profile_pic:
+            instance.profile_pic = decode_base64(profile_pic)
+
+        resume = request_data.get('resume')
+        if resume:
+            instance.resume = decode_base64(resume)
+
+        if request_data['address']:
+            try:
+                instance.address_id = request_data['address']
+            except Address.DoesNotExist:
+                Response(data={'error': 'Please provide valid address'}, status=status.HTTP_400_BAD_REQUEST)
+
+        instance.save()
+        if request_data["qualification"]:
+            qualifications = validate_n_get(
+                class_name='Qualification', records_ids=request_data.pop("qualification"))
+            qualifications and instance.qualification.add(*qualifications)
+        if request_data["specialization"]:
+            specializations = validate_n_get(
+                class_name='Specialization', records_ids=request_data.pop("specialization"))
+            specializations and instance.specialization.add(*specializations)
+        if request_data["research"]:
+            researches = validate_n_get(
+                class_name='Research', records_ids=request_data.pop("research"))
+            researches and instance.research.add(*researches)
+        if request_data["associated_with"]:
+            associated_with = validate_n_get(
+                class_name='Organization', records_ids=request_data.pop("associated_with"))
+            associated_with and instance.associated_with.add(*associated_with)
+        if request_data["languages_can_speak"]:
+            languages_can_speak = validate_n_get(
+                class_name='Language', records_ids=request_data.pop("languages_can_speak"))
+            languages_can_speak and instance.languages_can_speak.add(*languages_can_speak)
+
+        return Response(data={'success': True}, status=status.HTTP_200_OK)
+
+    @transaction.atomic
+    def delete(self, request):
+        # TODO- not implemented
+        pass
 
 
 class HealthworkerProfileViewSet(ModelViewSet):
     queryset = HealthworkerProfile.objects.all()
     serializer_class = HealthworkerProfileSerializer
     filter_class = HealthworkerFilter
+    permission_classes = (IsAuthenticated, IsSelfOrIsAdministrator)
+
+    @transaction.atomic
+    def create(self, request, *args, **kwargs):
+        request_data = request.data
+
+        certificate = request_data.get('registration_certificate')
+        request_data['registration_certificate'] = decode_base64(certificate)
+
+        profile_pic = request_data.get('profile_pic')
+        request_data['profile_pic'] = decode_base64(profile_pic)
+
+        resume = request_data.get('resume')
+        request_data['resume'] = decode_base64(resume)
+
+        try:
+            request_data['address'] = Address.objects.get(id=request_data['address'])
+            request_data['user'] = UserModel.objects.get(id=request_data['user'])
+
+        except Address.DoesNotExist:
+            Response(data={'error': 'Please provide valid address'}, status=status.HTTP_400_BAD_REQUEST)
+        except UserModel.DoesNotExist:
+            Response(data={'error': 'Please provide valid user'}, status=status.HTTP_400_BAD_REQUEST)
+
+        qualifications = validate_n_get(
+            class_name='Qualification', records_ids=request_data.pop("qualification"))
+        associated_with = validate_n_get(
+            class_name='Organization', records_ids=request_data.pop("associated_with"))
+        languages_can_speak = validate_n_get(
+            class_name='Language', records_ids=request_data.pop("languages_can_speak"))
+
+        healthworker_profile = HealthworkerProfile(**request_data)
+        healthworker_profile.save()
+
+        qualifications and healthworker_profile.qualification.add(*qualifications)
+        associated_with and healthworker_profile.associated_with.add(*associated_with)
+        languages_can_speak and healthworker_profile.languages_can_speak.add(*languages_can_speak)
+
+        return Response(data={'success': True}, status=status.HTTP_201_CREATED)
+
+    @transaction.atomic
+    def update(self, request, *args, **kwargs):
+        instance = self.get_object()
+        request_data = request.data
+
+        certificate = request_data.get('registration_certificate')
+        if certificate:
+            instance.registration_certificate = decode_base64(certificate)
+
+        profile_pic = request_data.get('profile_pic')
+        if profile_pic:
+            instance.profile_pic = decode_base64(profile_pic)
+
+        resume = request_data.get('resume')
+        if resume:
+            instance.resume = decode_base64(resume)
+
+        if request_data['address']:
+            try:
+                instance.address_id = request_data['address']
+            except Address.DoesNotExist:
+                Response(data={'error': 'Please provide valid address'}, status=status.HTTP_400_BAD_REQUEST)
+
+        instance.save()
+
+        if request_data["qualification"]:
+            qualifications = validate_n_get(
+                class_name='Qualification', records_ids=request_data.pop("qualification"))
+            qualifications and instance.qualification.add(*qualifications)
+        if request_data["associated_with"]:
+            associated_with = validate_n_get(
+                class_name='Organization', records_ids=request_data.pop("associated_with"))
+            associated_with and instance.associated_with.add(*associated_with)
+        if request_data["languages_can_speak"]:
+            languages_can_speak = validate_n_get(
+                class_name='Language', records_ids=request_data.pop("languages_can_speak"))
+            languages_can_speak and instance.languages_can_speak.add(*languages_can_speak)
+
+        return Response(data={'success': True}, status=status.HTTP_200_OK)
+
+    @transaction.atomic
+    def delete(self, request):
+        # TODO- not implemented
+        pass
 
 
 class PatientProfileViewSet(ModelViewSet):
     queryset = PatientProfile.objects.all()
     serializer_class = PatientProfileSerializer
     filter_class = PatientFilter
+    permission_classes = (IsAuthenticated, IsSelfOrIsAdministrator)
+
+    @transaction.atomic
+    def create(self, request, *args, **kwargs):
+        request_data = request.data
+
+        profile_pic = request_data.get('profile_pic')
+        request_data['profile_pic'] = profile_pic and (profile_pic)
+
+        request_data['case_summary'] = request_data.get('case_summary')
+        request_data['weight'] = request_data.get('weight')
+        request_data['height'] = request_data.get('height')
+        request_data['aadhaar_no'] = request_data.get('aadhaar_no')
+        request_data['alternate_mobile_no'] = request_data.get('alternate_mobile_no')
+
+        try:
+            request_data['address'] = Address.objects.get(id=request_data['address'])
+            request_data['user'] = UserModel.objects.get(id=request_data['user'])
+            request_data['blood_group'] = BloodGroup.objects.get(id=request_data['blood_group'])
+
+        except Address.DoesNotExist:
+            Response(data={'error': 'Please provide valid address'}, status=status.HTTP_400_BAD_REQUEST)
+        except UserModel.DoesNotExist:
+            Response(data={'error': 'Please provide valid user'}, status=status.HTTP_400_BAD_REQUEST)
+        except BloodGroup.DoesNotExist:
+            Response(data={'error': 'Please provide valid blood group'}, status=status.HTTP_400_BAD_REQUEST)
+
+        languages_can_speak = validate_n_get(
+            class_name='Language', records_ids=request_data.pop("languages_can_speak"))
+
+        patient_profile = PatientProfile(**request_data)
+        patient_profile.save()
+
+        languages_can_speak and patient_profile.languages_can_speak.add(*languages_can_speak)
+
+        return Response(data={'success': True}, status=status.HTTP_201_CREATED)
+
+    @transaction.atomic
+    def update(self, request, *args, **kwargs):
+        instance = self.get_object()
+        request_data = request.data
+
+        profile_pic = request_data.get('profile_pic')
+        if profile_pic:
+            instance.profile_pic = decode_base64(profile_pic)
+
+        if request_data.get('case_summary'):
+            instance.case_summary = request_data.get('case_summary')
+        if request_data.get('weight'):
+            instance.weight = request_data.get('weight')
+        if request_data.get('height'):
+            instance.height = request_data.get('height')
+        if request_data.get('aadhaar_no'):
+            instance.aadhaar_no = request_data.get('aadhaar_no')
+        if request_data.get('alternate_mobile_no'):
+            instance.alternate_mobile_no = request_data.get('alternate_mobile_no')
+
+        if request_data['address']:
+            try:
+                instance.address_id = request_data['address']
+            except Address.DoesNotExist:
+                Response(data={'error': 'Please provide valid address'}, status=status.HTTP_400_BAD_REQUEST)
+        if request_data['blood_group']:
+            try:
+                instance.blood_group_id = request_data['blood_group']
+            except Address.DoesNotExist:
+                Response(data={'error': 'Please provide valid blood group'}, status=status.HTTP_400_BAD_REQUEST)
+
+        instance.save()
+
+        if request_data["languages_can_speak"]:
+            languages_can_speak = validate_n_get(
+                class_name='Language', records_ids=request_data.get("languages_can_speak"))
+            languages_can_speak and instance.languages_can_speak.add(*languages_can_speak)
+
+        return Response(data={'success': True}, status=status.HTTP_200_OK)
+
+    @transaction.atomic
+    def delete(self, request):
+        # TODO- not implemented
+        pass
 
 
 class MRProfileViewSet(ModelViewSet):
@@ -104,6 +331,5 @@ class TestModelBase64ViewSet(ModelViewSet):
         serialzeinfo = {'profile_pic': file_field, 'name': file_name}
         serializer_ = TestModelBase64Serializer(data=serialzeinfo)
         serializer_.is_valid()
-        import pdb; pdb.set_trace()
         serializer_.save()
         print file_field

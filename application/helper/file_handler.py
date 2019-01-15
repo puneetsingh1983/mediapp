@@ -5,7 +5,7 @@ from django.core.files.base import ContentFile
 
 def decode_base64(filedata):
     if not (filedata or filedata.get('base64')):
-        return None, "No base64 file data provided"
+        raise Exception("Provide valid base64 file data")
     else:
         file_name = filedata.get('filename')
         file_ext = filedata.get('fileext')
