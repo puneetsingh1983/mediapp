@@ -85,7 +85,7 @@ class Migration(migrations.Migration):
             model_name='patientprofile',
             name='height',
             field=models.PositiveIntegerField(blank=True, help_text='in Centimeters', null=True),
-        )
+        ),
         migrations.AlterField(
             model_name='patientprofile',
             name='user',
