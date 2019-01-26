@@ -38,13 +38,13 @@ class DoctorProfileViewSet(ModelViewSet):
         request_data = request.data
 
         certificate = request_data.get('registration_certificate')
-        request_data['registration_certificate'] = decode_base64(certificate)
+        request_data['registration_certificate'] = certificate and decode_base64(certificate) or None
 
         profile_pic = request_data.get('profile_pic')
-        request_data['profile_pic'] = decode_base64(profile_pic)
+        request_data['profile_pic'] = profile_pic and decode_base64(profile_pic) or None
 
         resume = request_data.get('resume')
-        request_data['resume'] = decode_base64(resume)
+        request_data['resume'] = resume and decode_base64(resume) or None
 
         try:
             request_data['address'] = Address.objects.get(id=request_data['address'])
@@ -142,13 +142,13 @@ class HealthworkerProfileViewSet(ModelViewSet):
         request_data = request.data
 
         certificate = request_data.get('registration_certificate')
-        request_data['registration_certificate'] = decode_base64(certificate)
+        request_data['registration_certificate'] = certificate and decode_base64(certificate) or None
 
         profile_pic = request_data.get('profile_pic')
-        request_data['profile_pic'] = decode_base64(profile_pic)
+        request_data['profile_pic'] = profile_pic and decode_base64(profile_pic) or None
 
         resume = request_data.get('resume')
-        request_data['resume'] = decode_base64(resume)
+        request_data['resume'] = resume and decode_base64(resume) or None
 
         try:
             request_data['address'] = Address.objects.get(id=request_data['address'])
@@ -232,7 +232,7 @@ class PatientProfileViewSet(ModelViewSet):
         request_data = request.data
 
         profile_pic = request_data.get('profile_pic')
-        request_data['profile_pic'] = profile_pic and (profile_pic)
+        request_data['profile_pic'] = profile_pic and decode_base64(profile_pic) or None
 
         request_data['case_summary'] = request_data.get('case_summary')
         request_data['weight'] = request_data.get('weight')
