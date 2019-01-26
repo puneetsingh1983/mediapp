@@ -33,7 +33,7 @@ class DoctorProfile(BaseProfileModel):
 class PatientProfile(BaseProfileModel):
     # TODO- handling for multiple prescription and test reports
     case_summary = models.TextField(null=True, blank=True)
-    blood_group = models.ForeignKey(BloodGroup, null=True, blank=True)
+    blood_group = models.ForeignKey(BloodGroup, null=True, blank=True, on_delete=models.DO_NOTHING)
     weight = models.PositiveIntegerField(help_text="in Kilogram", null=True, blank=True)
     height = models.PositiveIntegerField(help_text="in Centimeters", null=True, blank=True)
     aadhaar_no = models.PositiveIntegerField(null=True, blank=True)
@@ -64,7 +64,6 @@ class MedicalRepresentative(BaseProfileModel):
     qualification = models.ManyToManyField(Qualification)
     associated_with = models.ManyToManyField(Organization)
     registration_certificate = models.FileField(upload_to='documents/medicalrepresentative/')
-    # user = models.ForeignKey(AppUserModel)
     profile_pic = models.FileField(upload_to='documents/medicalrepresentative/', null=True, blank=True)
     languages_can_speak = models.ManyToManyField(Language)
 
@@ -77,7 +76,7 @@ class Availability(BaseModel):
 
     availability_mode = models.IntegerField(choices=AVAILABILITY_MODE, default=2)
     # Place where person will be available physically (Offline)
-    venue = models.ForeignKey(Organization, null=False, blank=False)
+    venue = models.ForeignKey(Organization, null=False, blank=False, on_delete=models.DO_NOTHING)
     # Day and time
     start_time = models.TimeField()
     end_time = models.TimeField()
@@ -102,8 +101,8 @@ class Availability(BaseModel):
     # contact number based on place/mode
     contact_no = models.CharField(max_length=10, validators=[mobile_validator])
 
-    doctor = models.ForeignKey(DoctorProfile, null=True, blank=True)
-    health_worker = models.ForeignKey(HealthworkerProfile, null=True, blank=True)
+    doctor = models.ForeignKey(DoctorProfile, null=True, blank=True, on_delete=models.DO_NOTHING)
+    health_worker = models.ForeignKey(HealthworkerProfile, null=True, blank=True, on_delete=models.DO_NOTHING)
 
     def __str__(self):
         return self.place.name + " " + self.date_on + self.start_time

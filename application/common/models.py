@@ -94,8 +94,8 @@ class Address(models.Model):
     address_line_1 = models.CharField(max_length=50, blank=True, null=True, help_text="Area/Locality/Post")
     address_line_2 = models.CharField(max_length=50, blank=True, null=True, help_text="Street/Village")
     city = models.CharField(max_length=50)
-    state = models.ForeignKey(State)
-    country = models.ForeignKey(Country)
+    state = models.ForeignKey(State, on_delete=models.DO_NOTHING)
+    country = models.ForeignKey(Country, on_delete=models.DO_NOTHING)
     pincode = models.CharField(max_length=6)
 
     def __str__(self):
@@ -124,8 +124,8 @@ class BaseProfileModel(BaseModel):
     husband_name = models.CharField(max_length=50, null=True, blank=True)
     dob = models.DateField(max_length=8)
     gender = models.CharField(max_length=1, choices=GENDER, default=1)
-    address = models.ForeignKey(Address)
-    user = models.ForeignKey(AppUserModel)
+    address = models.ForeignKey(Address, on_delete=models.DO_NOTHING)
+    user = models.ForeignKey(AppUserModel, on_delete=models.DO_NOTHING)
     unique_id = models.UUIDField(default=uuid.uuid4(), unique=True, editable=False)
 
     class Meta:
