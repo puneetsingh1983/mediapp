@@ -28,6 +28,20 @@ class BaseModel(models.Model):
         abstract = True
 
 
+class ModelMixinForTextField(object):
+
+    @classmethod
+    def create_bulk_records(cls, values, return_records=False):
+        records = [cls(text=item) for item in values]
+        cls.objects.bulk_create(records)
+        if return_records:
+            return cls.objects.filter(text__in=values)
+
+    @classmethod
+    def get_records(cls, id_list):
+        return cls.objects.filter(id__in=id_list)
+
+
 class State(models.Model):
     id = models.CharField(max_length=3, primary_key=True)
     name = models.CharField(max_length=20)
@@ -44,31 +58,31 @@ class Country(models.Model):
         return self.name
 
 
-class Qualification(models.Model):
+class Qualification(ModelMixinForTextField, models.Model):
     """Qualification model. Ex- MBBS, MD etc"""
     text = models.CharField(max_length=10, unique=True)
 
     def __str__(self):
         return self.text
 
-    @classmethod
-    def get_qualifications(cls, id_list):
-        return cls.objects.filter(id__in=id_list)
+    # @classmethod
+    # def get_records(cls, id_list):
+    #     return cls.objects.filter(id__in=id_list)
 
 
-class Specialization(models.Model):
+class Specialization(ModelMixinForTextField, models.Model):
     """Specialization Model. Ex- Pediatric, Orthopaedic Surgery, Gynecology etc"""
     text = models.CharField(max_length=50, unique=True)
 
     def __str__(self):
         return self.text
 
-    @classmethod
-    def get_specializations(cls, id_list):
-        return cls.objects.filter(id__in=id_list)
+    # @classmethod
+    # def get_records(cls, id_list):
+    #     return cls.objects.filter(id__in=id_list)
 
 
-class Research(models.Model):
+class Research(ModelMixinForTextField, models.Model):
     """Research Model"""
     text = models.CharField(max_length=100, unique=True)
     description = models.TextField()
@@ -76,12 +90,12 @@ class Research(models.Model):
     def __str__(self):
         return self.text
 
-    @classmethod
-    def get_researches(cls, id_list):
-        return cls.objects.filter(id__in=id_list)
+    # @classmethod
+    # def get_records(cls, id_list):
+    #     return cls.objects.filter(id__in=id_list)
 
 
-class BloodGroup(models.Model):
+class BloodGroup(ModelMixinForTextField, models.Model):
     type = models.CharField(max_length=50, unique=True)
 
     def __str__(self):
@@ -113,7 +127,7 @@ class Language(models.Model):
         return self.text
 
     @classmethod
-    def get_languages(cls, id_list):
+    def get_records(cls, id_list):
         return cls.objects.filter(id__in=id_list)
 
 
@@ -124,7 +138,7 @@ class BaseProfileModel(BaseModel):
     husband_name = models.CharField(max_length=50, null=True, blank=True)
     dob = models.DateField(max_length=8)
     gender = models.CharField(max_length=1, choices=GENDER, default=1)
-    address = models.ForeignKey(Address, on_delete=models.DO_NOTHING)
+    address = models.ForeignKey(Address, on_delete=models.DO_NOTHING, null=True, blank=True)
     user = models.ForeignKey(AppUserModel, on_delete=models.DO_NOTHING)
     unique_id = models.UUIDField(default=uuid.uuid4(), unique=True, editable=False)
 

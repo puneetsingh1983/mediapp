@@ -1,21 +1,27 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 from django.db import transaction
+from django.db.models import Q
+from django.core.mail import send_mail
+from django.conf import settings
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.permissions import AllowAny, IsAuthenticated
-from rest_framework_jwt.authentication import JSONWebTokenAuthentication
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework import status
+from rest_framework_jwt.settings import api_settings
 
 from .serializers import AppUserModelSerializer
-from .models import AppUserModel
+from .models import AppUserModel, DEFAULT_TYPE, PENDING_APPROVAL
 from helper.permissions import IsAdministrator, IsSelfOrIsAdministrator
 
 
 # Create your views here.
 class AppUserViewSet(ModelViewSet):
-    # TODO: Need to implement role or user based permission so that one can't view other's data
+    """
+    Application user model
+    """
+    # TODO - ACCOUNT RESET
 
     queryset = AppUserModel.objects.all()
     serializer_class = AppUserModelSerializer
@@ -38,14 +44,29 @@ class AppUserViewSet(ModelViewSet):
     def create(self, request):
         """Create New User in system."""
         request_data = request.data
+
+        # check if user is already registered
+        try:
+            AppUserModel.objects.get(
+                Q(username=request_data.get('username')) | Q(mobile=request_data.get('mobile')))
+            return Response(
+                data={'success': False, 'error': 'User is already registered!'},
+                status=status.HTTP_400_BAD_REQUEST)
+        except AppUserModel.DoesNotExist:
+            pass
+
         request_data.setdefault("is_staff", True)
         request_data.setdefault("is_admin", False)
-        request_data.setdefault("user_type", 0)
-        request_data.setdefault("user_status", 1)
+        request_data.setdefault("user_type", DEFAULT_TYPE)
+        request_data.setdefault("user_status", PENDING_APPROVAL)
 
         _user = AppUserModel.objects.create_user(**request_data)
-        _user.save()
-        return Response(data={'success': True}, status=status.HTTP_201_CREATED)
+        payload = api_settings.JWT_PAYLOAD_HANDLER(_user)
+        token = api_settings.JWT_ENCODE_HANDLER(payload)
+
+        return Response(
+            data={'success': True, 'token': token, 'user': self.serializer_class(_user).data},
+            status=status.HTTP_201_CREATED)
 
     @transaction.atomic
     def update(self, request, pk=None):
@@ -90,6 +111,38 @@ class AppUserViewSet(ModelViewSet):
             response_msg = {'is_registered': True}
 
         return Response(data=response_msg, status=status.HTTP_200_OK)
+
+    @action(methods=['put'], detail=False, url_name="reset_password")
+    def reset_password(self, request):
+        """Reset password"""
+
+        request_data = request.data
+        try:
+            instance = AppUserModel.objects.get(
+                Q(id=request_data.get('id')) |
+                Q(username=request_data.get('username')) |
+                Q(mobile=request_data.get('mobile')))
+            password = AppUserModel.objects.make_random_password()
+            import ipdb; ipdb.set_trace()
+
+            send_mail("Reset Password",
+                      "Password has been reset for your account.\n"
+                      "New Password: {}".format(
+                          password,),
+                      settings.EMAIL_HOST_USER,
+                      [settings.EMAIL_HOST_USER, 'puneetsingh1983@gmail.com'])
+
+            instance.set_password(password)
+            instance.save()
+            return Response(
+                data={'success': True, 'message': 'Password is reset and sent to registered email'},
+                status=status.HTTP_200_OK)
+
+        except AppUserModel.DoesNotExist:
+            return Response(
+                data={'success': False, 'error': 'Invalid inputs'},
+                status=status.HTTP_400_BAD_REQUEST)
+
 
     @transaction.atomic
     def destroy(self, request, *args, **kwargs):

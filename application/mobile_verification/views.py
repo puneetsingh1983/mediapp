@@ -20,6 +20,8 @@ class GenerateOTPViewSet(ViewSet):
     def create(self, request):
         request_data = request.data
         mobile = str(request_data.get("mobile"))
+        email = str(request_data.get("email"))
+
         if is_valid_mobile(mobile):
             if OTP.is_mobile_registered(mobile):
                 # if mobile is already verified then no need to send OTP and verify OTP
@@ -34,12 +36,12 @@ class GenerateOTPViewSet(ViewSet):
                           "Please do not share this otp with anyone else.".format(
                               otp_created.token, mobile),
                           settings.EMAIL_HOST_USER,
-                          [settings.EMAIL_HOST_USER, ])
+                          [settings.EMAIL_HOST_USER, email])
                 return Response(
                     data=OTPSerializer(otp_created).data,
                     status=status.HTTP_201_CREATED)  # HTTP code 201 for newly created record
         else:
-            return Response(data={'error': 'Invalid mobile number'})
+            return Response(data={'error': 'Invalid mobile number Or invalid email address'})
 
 
 class VerifyOTPViewSet(ViewSet):
@@ -50,10 +52,11 @@ class VerifyOTPViewSet(ViewSet):
         """Verfiy OTP entered by user"""
         request_data = request.data
         mobile = str(request_data.get("mobile"))  # string
-        token = int(request_data.get("otp"))  # integer
+        token = request_data.get("otp")  # integer
 
-        if is_valid_mobile(mobile):
+        if is_valid_mobile(mobile) and token:
+            token = int(token)
             is_verified = OTP.verify_token(mobile, token)
             return Response(data={'verified': is_verified}, status=status.HTTP_200_OK)
         else:
-            return Response(data={'error': 'Invalid mobile number'})
+            return Response(data={'error': 'Invalid mobile number or invalid OTP'})

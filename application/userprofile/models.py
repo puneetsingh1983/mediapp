@@ -23,6 +23,7 @@ class DoctorProfile(BaseProfileModel):
     resume = models.FileField(upload_to='documents/doctor/', null=True, blank=True)
                               # validators=[FileExtensionValidator(allowed_extensions=['pdf', 'doc', 'docx'])
     # medical_registration_certificate
+    authority_registered_with = models.CharField(max_length=50, null=True, blank=True)
     registration_certificate = models.FileField(upload_to='documents/doctor/')
     profile_pic = models.FileField(upload_to='documents/doctor/', null=True, blank=True)
 

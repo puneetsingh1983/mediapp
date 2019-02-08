@@ -7,17 +7,29 @@ from django.contrib.auth.models import (
 from django.core.validators import RegexValidator
 
 
-USER_STATUSES = ((1, 'Approval Pending'),
-                 (2, 'Approved'),
-                 (3, 'Rejected'),
-                 (4, 'On Hold'))
+DEFAULT_TYPE = ''
+DOCTOR = 'doctor'
+HEALTH_WORKER = 'health_worker'
+PATIENT = 'patient'
+MED_REP = 'medical_rep'
+OTHER = 'other'
 
-USER_TYPE = ((0, ' -- '),
-             (1, 'Doctor'),
-             (2, 'Health Worker'),
-             (3, 'Patient'),
-             (4, 'Medical Representative'),
-             (5, 'Others'))
+PENDING_APPROVAL = 'pending_approval'  # approval pending
+APPROVED = 'approved'
+REJECTED = 'rejected'
+ON_HOLD = 'on_hold'
+
+USER_STATUSES = ((PENDING_APPROVAL, 'Approval Pending'),
+                 (APPROVED, 'Approved'),
+                 (REJECTED, 'Rejected'),
+                 (ON_HOLD, 'On Hold'))
+
+USER_TYPE = ((DEFAULT_TYPE, ' -- '),
+             (DOCTOR, 'Doctor'),
+             (HEALTH_WORKER, 'Health Worker'),
+             (PATIENT, 'Patient'),
+             (MED_REP, 'Medical Representative'),
+             (OTHER, 'Other'))
 
 
 # User model manager
@@ -35,8 +47,8 @@ class AppUserManager(BaseUserManager):
     def create_user(self, username, mobile, user_type, user_status, password, **kwargs):
         self.validate(username, mobile, password)
         user = self.model(username=self.normalize_email(username),
-                          mobile=mobile, user_type=user_type or USER_TYPE[0][0],
-                          user_status=user_status or USER_STATUSES[0][0])
+                          mobile=mobile, user_type=user_type or DEFAULT_TYPE,
+                          user_status=user_status or PENDING_APPROVAL)
         user.set_password(password)
         user.save()
         return user
@@ -45,8 +57,8 @@ class AppUserManager(BaseUserManager):
                          user_status=None):
         self.validate(username, mobile, password)
         user = self.model(username=self.normalize_email(username),
-                          mobile=mobile, user_type=user_type or USER_TYPE[0][0],
-                          user_status=user_status or USER_STATUSES[0][0],)
+                          mobile=mobile, user_type=user_type or DEFAULT_TYPE,
+                          user_status=user_status or PENDING_APPROVAL,)
         user.set_password(password)
         user.is_admin = True
         user.is_staff = True
@@ -70,11 +82,12 @@ class AppUserModel(AbstractBaseUser, PermissionsMixin):
     is_admin = models.BooleanField(default=False)
     is_staff = models.BooleanField(default=False)
     is_active = models.BooleanField(default=True)
-    user_type = models.IntegerField(choices=USER_TYPE, default=0)
-    user_status = models.IntegerField(choices=USER_STATUSES, default=1)
+    user_type = models.CharField(max_length=16, choices=USER_TYPE, default=0)
+    user_status = models.CharField(max_length=16, choices=USER_STATUSES, default=0)
     created_on = models.DateTimeField(auto_now_add=True)
-    modifile_on = models.DateTimeField(auto_now=True)
+    modified_on = models.DateTimeField(auto_now=True)
     reason_for_modification = models.TextField(null=True, blank=True)
+    full_name = models.CharField(max_length=50, null=True, blank=True)
     objects = AppUserManager()
 
     USERNAME_FIELD = 'username'

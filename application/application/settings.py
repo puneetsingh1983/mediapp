@@ -147,6 +147,8 @@ REST_FRAMEWORK = {
     'DEFAULT_FILTER_BACKENDS': (
         'django_filters.rest_framework.DjangoFilterBackend',
     ),
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
+    'PAGE_SIZE': 100
 }
 
 import datetime
@@ -165,7 +167,8 @@ JWT_AUTH = {
     'rest_framework_jwt.utils.jwt_get_user_id_from_payload_handler',
 
     'JWT_RESPONSE_PAYLOAD_HANDLER':
-    'rest_framework_jwt.utils.jwt_response_payload_handler',
+    'helper.jwt_utils.jwt_response_payload_handler',
+    # 'rest_framework_jwt.utils.jwt_response_payload_handler',
 
     'JWT_SECRET_KEY': SECRET_KEY,
     'JWT_GET_USER_SECRET_KEY': None,
@@ -191,9 +194,11 @@ JWT_AUTH = {
 DJANGO_OTP_SECRET_KEY = '9a91c220815f6f55888b337872a6c64c497245e3'
 
 EMAIL_USE_TLS = True
-# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_HOST_USER = 'no.reply.mediapp@gmail.com'
-EMAIL_HOST_PASSWORD = 'no.reply.mediapp1!'
+EMAIL_HOST_PASSWORD = 'no.reply.mediapp1@'
 EMAIL_PORT = 587
 DEFAULT_FROM_EMAIL = 'no.reply.mediapp@gmail.com'
+
+APPEND_SLASH = False

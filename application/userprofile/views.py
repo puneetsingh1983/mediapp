@@ -15,7 +15,7 @@ from .filters import DoctorFilter, HealthworkerFilter, PatientFilter
 from common.models import Address, BloodGroup
 from helper.file_handler import decode_base64
 from authentication.models import AppUserModel as UserModel
-from .utils import validate_n_get
+from .utils import validate_n_get, bulk_create_get
 from helper.permissions import IsSelfOrIsAdministrator
 
 
@@ -36,6 +36,8 @@ class DoctorProfileViewSet(ModelViewSet):
     @transaction.atomic
     def create(self, request, *args, **kwargs):
         request_data = request.data
+
+        ##### research user input
 
         certificate = request_data.get('registration_certificate')
         request_data['registration_certificate'] = certificate and decode_base64(certificate) or None
@@ -59,8 +61,8 @@ class DoctorProfileViewSet(ModelViewSet):
             class_name='Qualification', records_ids=request_data.pop("qualification"))
         specializations = validate_n_get(
             class_name='Specialization', records_ids=request_data.pop("specialization"))
-        researches = validate_n_get(
-            class_name='Research', records_ids=request_data.pop("research"))
+        researches = bulk_create_get(
+            class_name='Research', values=request_data.pop("research"))
         associated_with = validate_n_get(
             class_name='Organization', records_ids=request_data.pop("associated_with"))
         languages_can_speak = validate_n_get(
