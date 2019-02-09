@@ -14,6 +14,7 @@ from rest_framework_jwt.settings import api_settings
 from .serializers import AppUserModelSerializer
 from .models import AppUserModel, DEFAULT_TYPE, PENDING_APPROVAL
 from helper.permissions import IsAdministrator, IsSelfOrIsAdministrator
+from mobile_verification.models import OTP
 
 
 # Create your views here.
@@ -64,6 +65,10 @@ class AppUserViewSet(ModelViewSet):
         payload = api_settings.JWT_PAYLOAD_HANDLER(_user)
         token = api_settings.JWT_ENCODE_HANDLER(payload)
 
+        # TODO - Generated OTP and send in email as well as on phone
+        # TODO - Add one more field saying is_otp_verified
+        OTP.create_new_send(_user.mobile, _user.username)
+
         return Response(
             data={'success': True, 'token': token, 'user': self.serializer_class(_user).data},
             status=status.HTTP_201_CREATED)
@@ -76,18 +81,27 @@ class AppUserViewSet(ModelViewSet):
         user_status = request_data.get('user_status')
         user_type = request_data.get("user_type")
         mobile = request_data.get("mobile")
-        imei = request_data.get("imei")
         reason = request_data.get("reason_for_modification")
+
         if user_status:
             target_user.user_status = user_status
+
         if user_type:
             target_user.user_type = user_type
+
         if mobile:
+            # TODO - if phone no changed then generate OTP and send for verification and set flag is_otp_verified false
+            # TODO - if is_otp_verified is false in response mobile APP will present OTP box
+            if target_user.mobile != mobile:
+                # if mobile number is changed then need to generate and send OTP to verify new mobile number
+                OTP.create_new_send(mobile, target_user.username)
+                # reset verification flag
+                target_user.is_otp_verified = False
             target_user.mobile = mobile
-        if imei:
-            target_user.imei = imei
+
         if reason:
             target_user.reason_for_modification = reason
+
         target_user.save()
         return Response(data={'success': True}, status=status.HTTP_200_OK)
 
@@ -101,16 +115,15 @@ class AppUserViewSet(ModelViewSet):
         instance.save()
         return Response(data={'success': True}, status=status.HTTP_200_OK)
 
-    @action(methods=['get'], detail=False, url_name="is_registered")
-    def is_registered(self, request):
-        """Validate device. If device already registered then redirect to login screen"""
-
-        imei = request.GET.get('imei')
-        response_msg = {'is_registered': False}
-        if imei and AppUserModel.objects.filter(imei=int(imei)).exists():
-            response_msg = {'is_registered': True}
-
-        return Response(data=response_msg, status=status.HTTP_200_OK)
+    # @action(methods=['get'], detail=False, url_name="is_registered")
+    # def is_registered(self, request):
+    #     """Validate device. If device already registered then redirect to login screen"""
+    #
+    #     response_msg = {'is_registered': False}
+    #     if imei and AppUserModel.objects.filter(imei=int(imei)).exists():
+    #         response_msg = {'is_registered': True}
+    #
+    #     return Response(data=response_msg, status=status.HTTP_200_OK)
 
     @action(methods=['put'], detail=False, url_name="reset_password")
     def reset_password(self, request):
@@ -123,7 +136,6 @@ class AppUserViewSet(ModelViewSet):
                 Q(username=request_data.get('username')) |
                 Q(mobile=request_data.get('mobile')))
             password = AppUserModel.objects.make_random_password()
-            import ipdb; ipdb.set_trace()
 
             send_mail("Reset Password",
                       "Password has been reset for your account.\n"

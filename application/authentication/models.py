@@ -78,7 +78,6 @@ class AppUserModel(AbstractBaseUser, PermissionsMixin):
             message="Mobile number must have 10 digits",
             code="invalid_mobile")],
         unique=True)
-    imei = models.CharField(max_length=15, null=True, blank=True)
     is_admin = models.BooleanField(default=False)
     is_staff = models.BooleanField(default=False)
     is_active = models.BooleanField(default=True)
@@ -88,6 +87,8 @@ class AppUserModel(AbstractBaseUser, PermissionsMixin):
     modified_on = models.DateTimeField(auto_now=True)
     reason_for_modification = models.TextField(null=True, blank=True)
     full_name = models.CharField(max_length=50, null=True, blank=True)
+    is_otp_verified = models.BooleanField(default=False)
+
     objects = AppUserManager()
 
     USERNAME_FIELD = 'username'
@@ -114,3 +115,7 @@ class AppUserModel(AbstractBaseUser, PermissionsMixin):
     # this methods are require to login super user from admin panel
     def has_module_perms(self, app_label):
         return self.is_staff
+
+    @property
+    def email(self):
+        return self.username
