@@ -6,7 +6,7 @@ from django.core.validators import FileExtensionValidator
 
 from common.models import (BaseProfileModel, BaseModel, Qualification,
                            Specialization, Research, Language, BloodGroup,
-                           AVAILABILITY_MODE)
+                           State, AVAILABILITY_MODE)
 from organization.models import Organization
 from helper.validators import mobile_validator
 
@@ -77,7 +77,7 @@ class Availability(BaseModel):
 
     availability_mode = models.IntegerField(choices=AVAILABILITY_MODE, default=2)
     # Place where person will be available physically (Offline)
-    venue = models.ForeignKey(Organization, null=False, blank=False, on_delete=models.DO_NOTHING)
+    venue = models.ForeignKey(Organization, null=True, blank=True, on_delete=models.DO_NOTHING)
     # Day and time
     start_time = models.TimeField()
     end_time = models.TimeField()
@@ -95,9 +95,10 @@ class Availability(BaseModel):
     online_voice_call = models.NullBooleanField()
 
     # outdoor
-    outdoor_travel_upto = models.PositiveIntegerField(null=False, blank=False)
-    outdoor_travel_city = models.CharField(max_length=50, null=False, blank=False)
-    outdoor_travel_locality = models.CharField(max_length=50, null=False, blank=False)
+    outdoor_travel_upto = models.PositiveIntegerField(null=True, blank=True)
+    outdoor_travel_city = models.CharField(max_length=50, null=True, blank=True)
+    outdoor_travel_state = models.ForeignKey(State, null=True, blank=True)
+    outdoor_travel_locality = models.CharField(max_length=50, null=True, blank=True)
 
     # contact number based on place/mode
     contact_no = models.CharField(max_length=10, validators=[mobile_validator])

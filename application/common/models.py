@@ -42,7 +42,7 @@ class ModelMixinForTextField(object):
         return cls.objects.filter(id__in=id_list)
 
 
-class State(models.Model):
+class Country(models.Model):
     id = models.CharField(max_length=3, primary_key=True)
     name = models.CharField(max_length=20)
 
@@ -50,9 +50,10 @@ class State(models.Model):
         return self.name
 
 
-class Country(models.Model):
+class State(models.Model):
     id = models.CharField(max_length=3, primary_key=True)
     name = models.CharField(max_length=20)
+    country = models.ForeignKey(Country)
 
     def __str__(self):
         return self.name
@@ -97,7 +98,7 @@ class Address(models.Model):
     address_line_2 = models.CharField(max_length=50, blank=True, null=True, help_text="Street/Village")
     city = models.CharField(max_length=50)
     state = models.ForeignKey(State, on_delete=models.DO_NOTHING)
-    country = models.ForeignKey(Country, on_delete=models.DO_NOTHING)
+    # country = models.ForeignKey(Country, on_delete=models.DO_NOTHING)
     pincode = models.CharField(max_length=6)
 
     def __str__(self):
