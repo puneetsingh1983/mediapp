@@ -70,7 +70,7 @@ class AppUserViewSet(ModelViewSet):
         OTP.create_new_send(_user.mobile, _user.username)
 
         return Response(
-            data={'success': True, 'token': token, 'user': self.serializer_class(_user).data},
+            data={'success': True, 'token': token, 'result': self.serializer_class(_user).data},
             status=status.HTTP_201_CREATED)
 
     @transaction.atomic

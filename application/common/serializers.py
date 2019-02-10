@@ -2,7 +2,7 @@ from rest_framework.serializers import ModelSerializer
 
 from .models import (Country, State, Qualification,
                      Language, Specialization,
-                     BloodGroup, Address)
+                     BloodGroup, Address, Research)
 
 
 class AddressSerializer(ModelSerializer):
@@ -46,3 +46,8 @@ class BloodGroupSerializer(ModelSerializer):
         model = BloodGroup
         fields = '__all__'
 
+
+class ResearchSerializer(ModelSerializer):
+    class Meta:
+        model = Research
+        fields = '__all__'

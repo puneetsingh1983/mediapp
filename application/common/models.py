@@ -65,10 +65,6 @@ class Qualification(ModelMixinForTextField, models.Model):
     def __str__(self):
         return self.text
 
-    # @classmethod
-    # def get_records(cls, id_list):
-    #     return cls.objects.filter(id__in=id_list)
-
 
 class Specialization(ModelMixinForTextField, models.Model):
     """Specialization Model. Ex- Pediatric, Orthopaedic Surgery, Gynecology etc"""
@@ -76,10 +72,6 @@ class Specialization(ModelMixinForTextField, models.Model):
 
     def __str__(self):
         return self.text
-
-    # @classmethod
-    # def get_records(cls, id_list):
-    #     return cls.objects.filter(id__in=id_list)
 
 
 class Research(ModelMixinForTextField, models.Model):
@@ -89,10 +81,6 @@ class Research(ModelMixinForTextField, models.Model):
 
     def __str__(self):
         return self.text
-
-    # @classmethod
-    # def get_records(cls, id_list):
-    #     return cls.objects.filter(id__in=id_list)
 
 
 class BloodGroup(ModelMixinForTextField, models.Model):
@@ -139,7 +127,7 @@ class BaseProfileModel(BaseModel):
     dob = models.DateField(max_length=8)
     gender = models.CharField(max_length=1, choices=GENDER, default=1)
     address = models.ForeignKey(Address, on_delete=models.DO_NOTHING, null=True, blank=True)
-    user = models.ForeignKey(AppUserModel, on_delete=models.DO_NOTHING)
+    user = models.OneToOneField(AppUserModel, on_delete=models.DO_NOTHING)
     unique_id = models.UUIDField(default=uuid.uuid4(), unique=True, editable=False)
 
     class Meta:

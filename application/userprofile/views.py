@@ -78,7 +78,9 @@ class DoctorProfileViewSet(ModelViewSet):
         associated_with and doctor_profile.associated_with.add(*associated_with)
         languages_can_speak and doctor_profile.languages_can_speak.add(*languages_can_speak)
 
-        return Response(data={'success': True}, status=status.HTTP_201_CREATED)
+        return Response(
+            data={'success': True, 'result': self.serializer_class(doctor_profile).data},
+            status=status.HTTP_201_CREATED)
 
     @transaction.atomic
     def update(self, request, *args, **kwargs):
@@ -175,7 +177,9 @@ class HealthworkerProfileViewSet(ModelViewSet):
         associated_with and healthworker_profile.associated_with.add(*associated_with)
         languages_can_speak and healthworker_profile.languages_can_speak.add(*languages_can_speak)
 
-        return Response(data={'success': True}, status=status.HTTP_201_CREATED)
+        return Response(
+            data={'success': True, 'result': self.serializer_class(healthworker_profile).data},
+            status=status.HTTP_201_CREATED)
 
     @transaction.atomic
     def update(self, request, *args, **kwargs):
@@ -262,7 +266,9 @@ class PatientProfileViewSet(ModelViewSet):
 
         languages_can_speak and patient_profile.languages_can_speak.add(*languages_can_speak)
 
-        return Response(data={'success': True}, status=status.HTTP_201_CREATED)
+        return Response(
+            data={'success': True, 'result': self.serializer_class(patient_profile).data},
+            status=status.HTTP_201_CREATED)
 
     @transaction.atomic
     def update(self, request, *args, **kwargs):
