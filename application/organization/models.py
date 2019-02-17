@@ -3,7 +3,7 @@ from __future__ import unicode_literals
 
 from django.db import models
 
-from common.models import BaseModel, Qualification, Address
+from common.models import BaseModel, Specialization, Address
 from helper.validators import mobile_validator
 
 
@@ -20,14 +20,14 @@ class Organization(BaseModel):
     name = models.CharField(max_length=100)
     address = models.ForeignKey(Address, on_delete=models.DO_NOTHING)
     contact_no = models.CharField(max_length=10, validators=[mobile_validator])
-    contact_person = models.CharField(max_length=50, null=True, blank=True)
+    contact_person = models.CharField(max_length=50)
     email = models.EmailField()
     associated_company = models.ForeignKey('self', null=True, blank=True, on_delete=models.DO_NOTHING)
     gst_no = models.CharField(max_length=15)
     license_no = models.CharField(max_length=25, help_text="Required for hospitals/clinics/medical-stores")
     head_of_department = models.CharField(max_length=50, null=True, blank=True)
-    qualifications = models.ManyToManyField(Qualification)
-    license_doc = models.FileField(upload_to='documents/org/%Y/%m/%d/')
+    specialization = models.ManyToManyField(Specialization, null=True, blank=True)
+    license_doc = models.FileField(upload_to='documents/org/%Y/%m/%d/', null=True, blank=True)
     org_type = models.ForeignKey(OrganizationType, on_delete=models.DO_NOTHING)
 
     def __str__(self):

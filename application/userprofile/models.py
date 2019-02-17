@@ -6,9 +6,18 @@ from django.core.validators import FileExtensionValidator
 
 from common.models import (BaseProfileModel, BaseModel, Qualification,
                            Specialization, Research, Language, BloodGroup,
-                           State, AVAILABILITY_MODE)
+                           State)
 from organization.models import Organization
 from helper.validators import mobile_validator
+
+
+MODE_1 = 'online'
+MODE_2 = 'offline'
+MODE_3 = 'out_door'
+
+AVAILABILITY_MODE = ((MODE_1, 'Online'),
+                     (MODE_2, 'Offline'),
+                     (MODE_3, 'Out Door'))
 
 
 # Profiles
@@ -75,7 +84,7 @@ class MedicalRepresentative(BaseProfileModel):
 class Availability(BaseModel):
     """Model to capture person's availability - Online, Offline or Outdoor"""
 
-    availability_mode = models.IntegerField(choices=AVAILABILITY_MODE, default=2)
+    availability_mode = models.CharField(max_length=9, choices=AVAILABILITY_MODE, default=1)
     # Place where person will be available physically (Offline)
     venue = models.ForeignKey(Organization, null=True, blank=True, on_delete=models.DO_NOTHING)
     # Day and time
@@ -107,7 +116,7 @@ class Availability(BaseModel):
     health_worker = models.ForeignKey(HealthworkerProfile, null=True, blank=True, on_delete=models.DO_NOTHING)
 
     def __str__(self):
-        return self.place.name + " " + self.date_on + self.start_time
+        return str(self.id)
 
 
 class TestModelBase64(models.Model):

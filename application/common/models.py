@@ -13,11 +13,6 @@ GENDER = (('-', ' -- '),
           ('F', 'Female'),
           ('O', 'Other'))
 
-AVAILABILITY_MODE = ((1, 'Online'),
-                     (2, 'Offline'),
-                     (3, 'Out Door'))
-
-
 
 class BaseModel(models.Model):
     """Base Model"""
@@ -56,7 +51,7 @@ class State(models.Model):
     country = models.ForeignKey(Country)
 
     def __str__(self):
-        return self.name
+        return self.id + self.country.id
 
 
 class Qualification(ModelMixinForTextField, models.Model):
@@ -104,8 +99,7 @@ class Address(models.Model):
     def __str__(self):
         return (self.address_line [:10] + ", "
                 + self.city + ", "
-                + self.state.name + ", "
-                + self.country.name)
+                + str(self.state))
 
 
 class Language(models.Model):
