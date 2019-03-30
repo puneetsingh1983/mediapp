@@ -28,6 +28,10 @@ class DoctorProfileViewSet(ModelViewSet):
         3. Update data for given doctor
         4. Delete doctor profile
     """
+
+
+    # TODO- one API endpoint to add clinics (Hospital registration workflow is separate. Doctor can add Clinics only.
+    # TODO- one API endpoint to create Availability records (CAN BE on AVAILABILITY views -- DECIDE)
     queryset = DoctorProfile.objects.all()
     serializer_class = DoctorProfileSerializer
     filter_class = DoctorFilter
@@ -68,6 +72,7 @@ class DoctorProfileViewSet(ModelViewSet):
         languages_can_speak = validate_n_get(
             class_name='Language', records_ids=request_data.pop("languages_can_speak"))
 
+        # request_data.update({''})
         # doctor_profile = DoctorProfile.objects.create(**request_data)
         doctor_profile = DoctorProfile(**request_data)
         doctor_profile.save()

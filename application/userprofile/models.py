@@ -35,6 +35,7 @@ class DoctorProfile(BaseProfileModel):
     authority_registered_with = models.CharField(max_length=50, null=True, blank=True)
     registration_certificate = models.FileField(upload_to='documents/doctor/')
     profile_pic = models.FileField(upload_to='documents/doctor/', null=True, blank=True)
+    designation = models.CharField(max_length=50, null=True, blank=True)
 
     def __str__(self):
         return self.name
@@ -43,7 +44,7 @@ class DoctorProfile(BaseProfileModel):
 class PatientProfile(BaseProfileModel):
     # TODO- handling for multiple prescription and test reports
     case_summary = models.TextField(null=True, blank=True)
-    blood_group = models.ForeignKey(BloodGroup, null=True, blank=True, on_delete=models.DO_NOTHING)
+    blood_group = models.ForeignKey(BloodGroup, null=True, blank=True, on_delete=models.PROTECT)
     weight = models.PositiveIntegerField(help_text="in Kilogram", null=True, blank=True)
     height = models.PositiveIntegerField(help_text="in Centimeters", null=True, blank=True)
     aadhaar_no = models.PositiveIntegerField(null=True, blank=True)
@@ -82,14 +83,14 @@ class MedicalRepresentative(BaseProfileModel):
 
 
 class Availability(BaseModel):
-    """Model to capture person's availability - Online, Offline or Outdoor"""
+    """Availability: time, Day, contract no, appointment limit, fee and discount"""
 
-    availability_mode = models.CharField(max_length=9, choices=AVAILABILITY_MODE, default=1)
-    # Place where person will be available physically (Offline)
-    venue = models.ForeignKey(Organization, null=True, blank=True, on_delete=models.DO_NOTHING)
-    # Day and time
+    doctor = models.ForeignKey(DoctorProfile, null=True, blank=True, on_delete=models.PROTECT)
+    # Time
     start_time = models.TimeField()
     end_time = models.TimeField()
+
+    # Day
     monday = models.BooleanField(default=False)
     tuesday = models.BooleanField(default=False)
     wednesday = models.BooleanField(default=False)
@@ -98,25 +99,57 @@ class Availability(BaseModel):
     saturday = models.BooleanField(default=False)
     sunday = models.BooleanField(default=False)
 
-    # online
-    online_chat = models.NullBooleanField()
-    online_video_call = models.NullBooleanField()
-    online_voice_call = models.NullBooleanField()
+    appointment_limit = models.PositiveIntegerField(null=True, blank=True)
+    contact_no = models.CharField(max_length=10, validators=[mobile_validator])
 
-    # outdoor
+    class Meta:
+        abstract = True
+
+
+class OfflineAvailability(Availability):
+    """Offline availability description"""
+
+    # place where doctor will be available for visit
+    venue = models.ForeignKey(Organization, null=True, blank=True, on_delete=models.PROTECT)
+    consultation_fee = models.PositiveIntegerField()
+    discount = models.PositiveIntegerField(null=True, blank=True)
+
+
+class OnlineAvailability(Availability):
+    """Online availability description"""
+
+    chat = models.BooleanField(default=False)
+    video_call = models.BooleanField(default=False)
+    voice_call = models.BooleanField(default=False)
+
+    chat_fee = models.PositiveIntegerField()
+    video_call_fee = models.PositiveIntegerField()
+    voice_call_fee= models.PositiveIntegerField()
+
+    chat_discount = models.PositiveIntegerField(null=True, blank=True)
+    video_call_discount = models.PositiveIntegerField(null=True, blank=True)
+    voice_call_discount = models.PositiveIntegerField(null=True, blank=True)
+
+
+class OutdoorAvailability(Availability):
+    """Outdoor availability description"""
+
     outdoor_travel_upto = models.PositiveIntegerField(null=True, blank=True)
     outdoor_travel_city = models.CharField(max_length=50, null=True, blank=True)
     outdoor_travel_state = models.ForeignKey(State, null=True, blank=True)
     outdoor_travel_locality = models.CharField(max_length=50, null=True, blank=True)
 
-    # contact number based on place/mode
-    contact_no = models.CharField(max_length=10, validators=[mobile_validator])
+    fee_0_to_5km = models.PositiveIntegerField(null=True, blank=True)
+    fee_5_to_10km = models.PositiveIntegerField(null=True, blank=True)
+    fee_10_to_15km = models.PositiveIntegerField(null=True, blank=True)
+    fee_15_to_20km = models.PositiveIntegerField(null=True, blank=True)
+    fee_above_20km = models.PositiveIntegerField(null=True, blank=True)
 
-    doctor = models.ForeignKey(DoctorProfile, null=True, blank=True, on_delete=models.DO_NOTHING)
-    health_worker = models.ForeignKey(HealthworkerProfile, null=True, blank=True, on_delete=models.DO_NOTHING)
-
-    def __str__(self):
-        return str(self.id)
+    discount_0_to_5km = models.PositiveIntegerField(null=True, blank=True)
+    discount_5_to_10km = models.PositiveIntegerField(null=True, blank=True)
+    discount_10_to_15km = models.PositiveIntegerField(null=True, blank=True)
+    discount_15_to_20km = models.PositiveIntegerField(null=True, blank=True)
+    discount_above_20km = models.PositiveIntegerField(null=True, blank=True)
 
 
 class TestModelBase64(models.Model):

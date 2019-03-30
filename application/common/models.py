@@ -18,6 +18,9 @@ class BaseModel(models.Model):
     """Base Model"""
     created_on = models.DateTimeField(auto_now_add=True)
     modified_on = models.DateTimeField(auto_now=True)
+    # TODO - make these mandatory later. Left optional as of now
+    created_by = models.ForeignKey(AppUserModel, null=True, blank=True)
+    edited_by = models.ForeignKey(AppUserModel, null=True, blank=True)
 
     class Meta:
         abstract = True
@@ -92,8 +95,8 @@ class Address(models.Model):
     address_line_1 = models.CharField(max_length=50, blank=True, null=True, help_text="Area/Locality/Post")
     address_line_2 = models.CharField(max_length=50, blank=True, null=True, help_text="Street/Village")
     city = models.CharField(max_length=50)
-    state = models.ForeignKey(State, on_delete=models.DO_NOTHING)
-    # country = models.ForeignKey(Country, on_delete=models.DO_NOTHING)
+    state = models.ForeignKey(State, on_delete=models.PROTECT)
+    # country = models.ForeignKey(Country, on_delete=models.PROTECT)
     pincode = models.CharField(max_length=6)
 
     def __str__(self):
@@ -121,8 +124,8 @@ class BaseProfileModel(BaseModel):
     husband_name = models.CharField(max_length=50, null=True, blank=True)
     dob = models.DateField(max_length=8)
     gender = models.CharField(max_length=1, choices=GENDER, default=1)
-    address = models.ForeignKey(Address, on_delete=models.DO_NOTHING, null=True, blank=True)
-    user = models.OneToOneField(AppUserModel, on_delete=models.DO_NOTHING)
+    address = models.ForeignKey(Address, on_delete=models.PROTECT, null=True, blank=True)
+    user = models.OneToOneField(AppUserModel, on_delete=models.PROTECT)
     unique_id = models.UUIDField(default=uuid.uuid4(), unique=True, editable=False)
 
     class Meta:
