@@ -35,7 +35,7 @@ class DoctorProfileViewSet(ModelViewSet):
 
     @transaction.atomic
     def create(self, request, *args, **kwargs):
-        request_data = request.data
+        request_data = request.data.copy()
 
         ##### research user input
 
@@ -143,7 +143,7 @@ class HealthworkerProfileViewSet(ModelViewSet):
 
     @transaction.atomic
     def create(self, request, *args, **kwargs):
-        request_data = request.data
+        request_data = request.data.copy()
 
         certificate = request_data.get('registration_certificate')
         request_data['registration_certificate'] = certificate and decode_base64(certificate) or None
@@ -235,7 +235,7 @@ class PatientProfileViewSet(ModelViewSet):
 
     @transaction.atomic
     def create(self, request, *args, **kwargs):
-        request_data = request.data
+        request_data = request.data.copy()
 
         profile_pic = request_data.get('profile_pic')
         request_data['profile_pic'] = profile_pic and decode_base64(profile_pic) or None
@@ -332,7 +332,7 @@ class TestModelBase64ViewSet(ModelViewSet):
     serializer_class = TestModelBase64Serializer
 
     def create(self, request, *args, **kwargs):
-        request_data = request.data
+        request_data = request.data.copy()
         file_name, file_field = decode_base64(request_data)
         # tmb = TestModelBase64(profile_pic=file_field, name="Testfile.txt")
         # tmb.save()

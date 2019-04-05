@@ -19,7 +19,7 @@ class GenerateOTPViewSet(ViewSet):
 
     @transaction.atomic
     def create(self, request):
-        request_data = request.data
+        request_data = request.data.copy()
         mobile = str(request_data.get("mobile"))
         email = str(request_data.get("email"))
         no_otp_for_registered_user = request_data.get("no_otp_for_registered_user", False)
@@ -52,7 +52,7 @@ class VerifyOTPViewSet(ViewSet):
     @transaction.atomic
     def create(self, request):
         """Verfiy OTP entered by user"""
-        request_data = request.data
+        request_data = request.data.copy()
 
         mobile = str(request_data.get("mobile"))  # string
         token = request_data.get("otp")  # integer

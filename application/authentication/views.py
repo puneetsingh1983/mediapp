@@ -44,7 +44,7 @@ class AppUserViewSet(ModelViewSet):
     @transaction.atomic
     def create(self, request):
         """Create New User in system."""
-        request_data = request.data
+        request_data = request.data.copy()
 
         # check if user is already registered
         try:
