@@ -1,139 +1,125 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
-from datetime import date
 
 from django.db import models
+from django.core.validators import FileExtensionValidator
 
-from utility.models import BaseModel, Address, Qualification, Specialization, Research, Language, BloodGroup
+from common.models import (BaseProfileModel, BaseModel, Qualification,
+                           Specialization, Research, Language, BloodGroup,
+                           State)
 from organization.models import Organization
-from authentication.models import AppUserModel
+from helper.validators import mobile_validator
 
 
-GENDER = (('-', ' -- '),
-          ('M', 'Male'),
-          ('F', 'Female'),
-          ('O', 'Other'))
+MODE_1 = 'online'
+MODE_2 = 'offline'
+MODE_3 = 'out_door'
+
+AVAILABILITY_MODE = ((MODE_1, 'Online'),
+                     (MODE_2, 'Offline'),
+                     (MODE_3, 'Out Door'))
 
 
 # Profiles
-class DoctorProfile(BaseModel):
-    name = models.CharField(max_length=50)
-    father_name = models.CharField(max_length=50, null=True, blank=True)
-    husband_name = models.CharField(max_length=50, null=True, blank=True)
-    dob = models.DateField(max_length=8)
-    gender = models.CharField(max_length=1, choices=GENDER, default=1)
-    address = models.ForeignKey(Address)
-    registration_number = models.CharField(max_length=25)
+class DoctorProfile(BaseProfileModel):
+    registration_number = models.CharField(max_length=25, unique=True)
     years_of_experience = models.IntegerField()
-    qualification = models.ManyToManyField(Qualification)
-    specialization = models.ManyToManyField(Specialization)
-    Research = models.ManyToManyField(Research)
+    qualification = models.ManyToManyField(Qualification, null=True, blank=True)
+    specialization = models.ManyToManyField(Specialization, null=True, blank=True)
+    research = models.ManyToManyField(Research, null=True, blank=True)
     associated_with = models.ManyToManyField(Organization, null=True, blank=True)
-    languages_can_speak = models.ManyToManyField(Language)
+    languages_can_speak = models.ManyToManyField(Language, null=True, blank=True)
     resume = models.FileField(upload_to='documents/doctor/', null=True, blank=True)
+                              # validators=[FileExtensionValidator(allowed_extensions=['pdf', 'doc', 'docx'])
     # medical_registration_certificate
+    authority_registered_with = models.CharField(max_length=50, null=True, blank=True)
     registration_certificate = models.FileField(upload_to='documents/doctor/')
-    user = models.ForeignKey(AppUserModel)
     profile_pic = models.FileField(upload_to='documents/doctor/', null=True, blank=True)
 
-    @property
-    def age(self):
-        today = date.today()
-        dob = self.dob
-        return today.year - dob.year - ((today.month, today.day) < (dob.month, dob.day))
-
     def __str__(self):
         return self.name
 
 
-class PatientProfile(BaseModel):
-    name = models.CharField(max_length=50)
-    father_name = models.CharField(max_length=50, null=True, blank=True)
-    husband_name = models.CharField(max_length=50, null=True, blank=True)
-    dob = models.DateField(max_length=8)
-    gender = models.CharField(max_length=1, choices=GENDER, default=1)
-    address = models.ForeignKey(Address)
+class PatientProfile(BaseProfileModel):
+    # TODO- handling for multiple prescription and test reports
     case_summary = models.TextField(null=True, blank=True)
-    blood_group = models.ForeignKey(BloodGroup)
-    weight = models.PositiveIntegerField(help_text="in Kilogram")
-    height = models.PositiveIntegerField(help_text="in Centimeters")
-    aadhaar_no = models.PositiveIntegerField()
+    blood_group = models.ForeignKey(BloodGroup, null=True, blank=True, on_delete=models.DO_NOTHING)
+    weight = models.PositiveIntegerField(help_text="in Kilogram", null=True, blank=True)
+    height = models.PositiveIntegerField(help_text="in Centimeters", null=True, blank=True)
+    aadhaar_no = models.PositiveIntegerField(null=True, blank=True)
     alternate_mobile_no = models.PositiveIntegerField(null=True, blank=True)
-    user = models.ForeignKey(AppUserModel)
-    profile_pic = models.FileField(upload_to='documents/patient/')
-
-    @property
-    def age(self):
-        today = date.today()
-        dob = self.dob
-        return today.year - dob.year - ((today.month, today.day) < (dob.month, dob.day))
+    profile_pic = models.FileField(upload_to='documents/healthworker/', null=True, blank=True)
+    languages_can_speak = models.ManyToManyField(Language)
 
     def __str__(self):
         return self.name
 
 
-class HealthworkerProfile(BaseModel):
-    name = models.CharField(max_length=50)
-    father_name = models.CharField(max_length=50, null=True, blank=True)
-    husband_name = models.CharField(max_length=50, null=True, blank=True)
-    dob = models.DateField(max_length=8)
-    gender = models.CharField(max_length=1, choices=GENDER, default=1)
-    address = models.ForeignKey(Address)
+class HealthworkerProfile(BaseProfileModel):
     registration_number = models.CharField(max_length=25)
-    years_of_experience = models.IntegerField()
+    years_of_experience = models.IntegerField(null=True, blank=True)
     qualification = models.ManyToManyField(Qualification)
     associated_with = models.ManyToManyField(Organization)
     languages_can_speak = models.ManyToManyField(Language)
     resume = models.FileField(upload_to='documents/healthworker/', null=True, blank=True)
     #medical_registration_certificate
     registration_certificate = models.FileField(upload_to='documents/healthworker/')
-    user = models.ForeignKey(AppUserModel)
-    created_on = models.DateTimeField(auto_now_add=True)
-    modified_on = models.DateTimeField(auto_now=True)
     profile_pic = models.FileField(upload_to='documents/healthworker/', null=True, blank=True)
-
-    @property
-    def age(self):
-        today = date.today()
-        dob = self.dob
-        return today.year - dob.year - ((today.month, today.day) < (dob.month, dob.day))
 
     def __str__(self):
         return self.name
 
 
-class MedicalRepresentative(BaseModel):
-    name = models.CharField(max_length=50)
-    father_name = models.CharField(max_length=50, null=True, blank=True)
-    husband_name = models.CharField(max_length=50, null=True, blank=True)
-    dob = models.DateField(max_length=8)
-    gender = models.CharField(max_length=1, choices=GENDER, default=1)
-    address = models.ForeignKey(Address)
+class MedicalRepresentative(BaseProfileModel):
     qualification = models.ManyToManyField(Qualification)
     associated_with = models.ManyToManyField(Organization)
     registration_certificate = models.FileField(upload_to='documents/medicalrepresentative/')
-    user = models.ForeignKey(AppUserModel)
-    created_on = models.DateTimeField(auto_now_add=True)
-    modified_on = models.DateTimeField(auto_now=True)
     profile_pic = models.FileField(upload_to='documents/medicalrepresentative/', null=True, blank=True)
-
-    @property
-    def age(self):
-        today = date.today()
-        dob = self.dob
-        return today.year - dob.year - ((today.month, today.day) < (dob.month, dob.day))
+    languages_can_speak = models.ManyToManyField(Language)
 
     def __str__(self):
         return self.name
 
 
 class Availability(BaseModel):
-    place = models.ForeignKey(Organization)
-    date_on = models.DateField()
+    """Model to capture person's availability - Online, Offline or Outdoor"""
+
+    availability_mode = models.CharField(max_length=9, choices=AVAILABILITY_MODE, default=1)
+    # Place where person will be available physically (Offline)
+    venue = models.ForeignKey(Organization, null=True, blank=True, on_delete=models.DO_NOTHING)
+    # Day and time
     start_time = models.TimeField()
     end_time = models.TimeField()
-    doctor = models.ForeignKey(DoctorProfile, null=True, blank=True)
-    healthworker = models.ForeignKey(HealthworkerProfile, null=True, blank=True)
+    monday = models.BooleanField(default=False)
+    tuesday = models.BooleanField(default=False)
+    wednesday = models.BooleanField(default=False)
+    thursday = models.BooleanField(default=False)
+    friday = models.BooleanField(default=False)
+    saturday = models.BooleanField(default=False)
+    sunday = models.BooleanField(default=False)
+
+    # online
+    online_chat = models.NullBooleanField()
+    online_video_call = models.NullBooleanField()
+    online_voice_call = models.NullBooleanField()
+
+    # outdoor
+    outdoor_travel_upto = models.PositiveIntegerField(null=True, blank=True)
+    outdoor_travel_city = models.CharField(max_length=50, null=True, blank=True)
+    outdoor_travel_state = models.ForeignKey(State, null=True, blank=True)
+    outdoor_travel_locality = models.CharField(max_length=50, null=True, blank=True)
+
+    # contact number based on place/mode
+    contact_no = models.CharField(max_length=10, validators=[mobile_validator])
+
+    doctor = models.ForeignKey(DoctorProfile, null=True, blank=True, on_delete=models.DO_NOTHING)
+    health_worker = models.ForeignKey(HealthworkerProfile, null=True, blank=True, on_delete=models.DO_NOTHING)
 
     def __str__(self):
-        return self.place.name + " " + self.date_on + self.start_time
+        return str(self.id)
+
+
+class TestModelBase64(models.Model):
+    profile_pic = models.FileField(upload_to='documents/testing/', null=True, blank=True)
+    name = models.CharField(max_length=10, null=True, blank=True)
+

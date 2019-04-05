@@ -23,16 +23,19 @@ from rest_framework_swagger.views import get_swagger_view
 from authentication import urls as user_urls
 from organization import urls as organizatoin_urls
 from userprofile import urls as profile_urls
+from mobile_verification import urls as verify_urls
+from common import urls as common_urls
 
 api_endpoints = get_swagger_view(title='Application API Endpoints')
 
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
-    url(r'^api-token-auth/', obtain_jwt_token),
-    url(r'^verify_jwt_token/', verify_jwt_token),
+    url(r'^api/v1/api-token-auth/', obtain_jwt_token),
+    url(r'^api/v1/verify-jwt-token/', verify_jwt_token),
     url(r'^$', api_endpoints)
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 
 urlpatterns = urlpatterns + user_urls.urlpatterns + organizatoin_urls.urlpatterns + profile_urls.urlpatterns
+urlpatterns = urlpatterns + verify_urls.urlpatterns + common_urls.urlpatterns

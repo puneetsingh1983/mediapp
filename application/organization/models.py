@@ -3,7 +3,8 @@ from __future__ import unicode_literals
 
 from django.db import models
 
-from utility.models import BaseModel, Qualification, Address
+from common.models import BaseModel, Specialization, Address
+from helper.validators import mobile_validator
 
 
 # Create your models here.
@@ -15,18 +16,23 @@ class OrganizationType(models.Model):
 
 
 class Organization(BaseModel):
+    """Organization Model. Ex- Hospital, Clinic, Digital Clinic or Pharmacy or Medical Store"""
     name = models.CharField(max_length=100)
-    address = models.ForeignKey(Address)
-    contact_number = models.IntegerField(max_length=10)
-    contact_person = models.CharField(max_length=50, null=True, blank=True)
+    address = models.ForeignKey(Address, on_delete=models.DO_NOTHING)
+    contact_no = models.CharField(max_length=10, validators=[mobile_validator])
+    contact_person = models.CharField(max_length=50)
     email = models.EmailField()
-    associated_company = models.ForeignKey('self', null=True, blank=True)
+    associated_company = models.ForeignKey('self', null=True, blank=True, on_delete=models.DO_NOTHING)
     gst_no = models.CharField(max_length=15)
-    license_no = models.CharField(max_length=25)
-    head_of_department = models.CharField(max_length=50)
-    qualifications = models.ManyToManyField(Qualification)
-    license_doc = models.FileField(upload_to='documents/org/%Y/%m/%d/')
-    org_type = models.ForeignKey(OrganizationType)
+    license_no = models.CharField(max_length=25, help_text="Required for hospitals/clinics/medical-stores")
+    head_of_department = models.CharField(max_length=50, null=True, blank=True)
+    specialization = models.ManyToManyField(Specialization, null=True, blank=True)
+    license_doc = models.FileField(upload_to='documents/org/%Y/%m/%d/', null=True, blank=True)
+    org_type = models.ForeignKey(OrganizationType, on_delete=models.DO_NOTHING)
 
     def __str__(self):
         return self.name
+
+    @classmethod
+    def get_organizations(cls, id_list):
+        return cls.objects.filter(id__in=id_list)

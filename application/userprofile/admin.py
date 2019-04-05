@@ -2,7 +2,7 @@
 from __future__ import unicode_literals
 from django.contrib import admin
 
-from .models import DoctorProfile, HealthworkerProfile, Availability, PatientProfile
+from .models import DoctorProfile, HealthworkerProfile, Availability, PatientProfile, MedicalRepresentative
 
 
 # Register your models here.
@@ -23,4 +23,9 @@ class AvailabilityAdmin(admin.ModelAdmin):
 
 @admin.register(PatientProfile)
 class PatientProfileAdmin(admin.ModelAdmin):
+    pass
+
+
+@admin.register(MedicalRepresentative)
+class MRProfileAdmin(admin.ModelAdmin):
     pass

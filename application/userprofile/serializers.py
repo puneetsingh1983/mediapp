@@ -1,6 +1,7 @@
+# imports
+from drf_extra_fields.fields import Base64FileField
 from rest_framework.serializers import ModelSerializer
-from .models import DoctorProfile, HealthworkerProfile, Availability, PatientProfile
-
+from .models import DoctorProfile, HealthworkerProfile, Availability, PatientProfile, MedicalRepresentative, TestModelBase64
 
 class DoctorProfileSerializer(ModelSerializer):
     class Meta:
@@ -20,7 +21,20 @@ class PatientProfileSerializer(ModelSerializer):
         fields = '__all__'
 
 
+class MRProfileSerializer(ModelSerializer):
+    class Meta:
+        model = MedicalRepresentative
+        fields = '__all__'
+
+
 class AvailabilitySerializer(ModelSerializer):
     class Meta:
         model = Availability
+        fields = '__all__'
+
+
+class TestModelBase64Serializer(ModelSerializer):
+    profile_pic = Base64FileField()
+    class Meta:
+        model = TestModelBase64
         fields = '__all__'
