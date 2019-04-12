@@ -197,8 +197,10 @@ EMAIL_USE_TLS = True
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_HOST_USER = 'no.reply.mediapp@gmail.com'
-EMAIL_HOST_PASSWORD = 'no.reply.mediapp1@'
+EMAIL_HOST_PASSWORD = 'noreply1!'
 EMAIL_PORT = 587
 DEFAULT_FROM_EMAIL = 'no.reply.mediapp@gmail.com'
 
 APPEND_SLASH = False
+
+TOKEN_VALIDITY_PERIOD = 120 # valid for 2 mins
