@@ -5,12 +5,15 @@ from rest_framework.viewsets import ModelViewSet
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.views import APIView
 
 from .models import (
-    DoctorProfile, HealthworkerProfile, Availability, PatientProfile, MedicalRepresentative, TestModelBase64)
+    DoctorProfile, HealthworkerProfile, PatientProfile, MedicalRepresentative, TestModelBase64,
+    OfflineAvailability, OnlineAvailability, OutdoorAvailability)
 from .serializers import (
     DoctorProfileSerializer, HealthworkerProfileSerializer,
-    AvailabilitySerializer, PatientProfileSerializer, MRProfileSerializer, TestModelBase64Serializer)
+    OnlineAvailabilitySerializer, OfflineAvailabilitySerializer, OutdoorAvailabilitySerializer,
+    PatientProfileSerializer, MRProfileSerializer, TestModelBase64Serializer)
 from .filters import DoctorFilter, HealthworkerFilter, PatientFilter
 from common.models import Address, BloodGroup
 from helper.file_handler import decode_base64
@@ -327,9 +330,34 @@ class MRProfileViewSet(ModelViewSet):
     # filter_class = PatientFilter
 
 
-class AvailabilityViewSet(ModelViewSet):
-    queryset = Availability.objects.all()
-    serializer_class = AvailabilitySerializer
+class OfflineAvailabilityViewSet(ModelViewSet):
+    queryset = OfflineAvailability.objects.all()
+    serializer_class = OfflineAvailabilitySerializer
+
+
+class OnlineAvailabilityViewSet(ModelViewSet):
+    queryset = OnlineAvailability.objects.all()
+    serializer_class = OnlineAvailabilitySerializer
+
+
+class OutdoorAvailabilityViewSet(ModelViewSet):
+    queryset = OutdoorAvailability.objects.all()
+    serializer_class = OutdoorAvailabilitySerializer
+
+
+class AvailabilityView(APIView):
+
+    def get(self, request):
+        pass
+
+    def post(self, request):
+        pass
+
+    def put(self, request):
+        pass
+
+    def delete(self, request):
+        pass
 
 
 class TestModelBase64ViewSet(ModelViewSet):

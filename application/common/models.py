@@ -13,14 +13,16 @@ GENDER = (('-', ' -- '),
           ('F', 'Female'),
           ('O', 'Other'))
 
-
+# TODO - AUDIT MODELS NEED TO BE CREATED -----
 class BaseModel(models.Model):
     """Base Model"""
     created_on = models.DateTimeField(auto_now_add=True)
     modified_on = models.DateTimeField(auto_now=True)
     # TODO - make these mandatory later. Left optional as of now
-    created_by = models.ForeignKey(AppUserModel, null=True, blank=True)
-    edited_by = models.ForeignKey(AppUserModel, null=True, blank=True)
+    created_by = models.ForeignKey(AppUserModel, null=True, blank=True,
+                                   related_name="%(class)s_created_records")
+    edited_by = models.ForeignKey(AppUserModel, null=True, blank=True,
+                                  related_name="%(class)s_edited_records")
 
     class Meta:
         abstract = True
@@ -51,7 +53,7 @@ class Country(models.Model):
 class State(models.Model):
     id = models.CharField(max_length=3, primary_key=True)
     name = models.CharField(max_length=20)
-    country = models.ForeignKey(Country)
+    country = models.ForeignKey(Country, related_name="states")
 
     def __str__(self):
         return self.id + self.country.id
@@ -95,7 +97,7 @@ class Address(models.Model):
     address_line_1 = models.CharField(max_length=50, blank=True, null=True, help_text="Area/Locality/Post")
     address_line_2 = models.CharField(max_length=50, blank=True, null=True, help_text="Street/Village")
     city = models.CharField(max_length=50)
-    state = models.ForeignKey(State, on_delete=models.PROTECT)
+    state = models.ForeignKey(State, on_delete=models.PROTECT, related_name="addresses")
     # country = models.ForeignKey(Country, on_delete=models.PROTECT)
     pincode = models.CharField(max_length=6)
 
@@ -125,7 +127,7 @@ class BaseProfileModel(BaseModel):
     dob = models.DateField(max_length=8)
     gender = models.CharField(max_length=1, choices=GENDER, default=1)
     address = models.ForeignKey(Address, on_delete=models.PROTECT, null=True, blank=True)
-    user = models.OneToOneField(AppUserModel, on_delete=models.PROTECT)
+    user = models.ForeignKey(AppUserModel, on_delete=models.PROTECT)
     unique_id = models.UUIDField(default=uuid.uuid4(), unique=True, editable=False)
 
     class Meta:

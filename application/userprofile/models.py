@@ -44,7 +44,8 @@ class DoctorProfile(BaseProfileModel):
 class PatientProfile(BaseProfileModel):
     # TODO- handling for multiple prescription and test reports
     case_summary = models.TextField(null=True, blank=True)
-    blood_group = models.ForeignKey(BloodGroup, null=True, blank=True, on_delete=models.PROTECT)
+    blood_group = models.ForeignKey(BloodGroup, null=True, blank=True, on_delete=models.PROTECT,
+                                    related_name="patients")
     weight = models.PositiveIntegerField(help_text="in Kilogram", null=True, blank=True)
     height = models.PositiveIntegerField(help_text="in Centimeters", null=True, blank=True)
     aadhaar_no = models.PositiveIntegerField(null=True, blank=True)
@@ -110,7 +111,8 @@ class OfflineAvailability(Availability):
     """Offline availability description"""
 
     # place where doctor will be available for visit
-    venue = models.ForeignKey(Organization, null=True, blank=True, on_delete=models.PROTECT)
+    venue = models.ForeignKey(Organization, null=True, blank=True, on_delete=models.PROTECT,
+                              related_name="offline_availabilities")
     consultation_fee = models.PositiveIntegerField()
     discount = models.PositiveIntegerField(null=True, blank=True)
 
@@ -136,7 +138,7 @@ class OutdoorAvailability(Availability):
 
     outdoor_travel_upto = models.PositiveIntegerField(null=True, blank=True)
     outdoor_travel_city = models.CharField(max_length=50, null=True, blank=True)
-    outdoor_travel_state = models.ForeignKey(State, null=True, blank=True)
+    outdoor_travel_state = models.ForeignKey(State, null=True, blank=True, related_name="outdoor_availabilities")
     outdoor_travel_locality = models.CharField(max_length=50, null=True, blank=True)
 
     fee_0_to_5km = models.PositiveIntegerField(null=True, blank=True)
