@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
+import uuid
 from django.db import transaction
 from rest_framework.viewsets import ModelViewSet
 from rest_framework import status
@@ -37,8 +38,6 @@ class DoctorProfileViewSet(ModelViewSet):
     def create(self, request, *args, **kwargs):
         request_data = request.data.copy()
 
-        ##### research user input
-
         certificate = request_data.get('registration_certificate')
         request_data['registration_certificate'] = certificate and decode_base64(certificate) or None
 
@@ -48,35 +47,48 @@ class DoctorProfileViewSet(ModelViewSet):
         resume = request_data.get('resume')
         request_data['resume'] = resume and decode_base64(resume) or None
 
-        try:
-            request_data['address'] = Address.objects.get(id=request_data['address'])
-            request_data['user'] = UserModel.objects.get(id=request_data['user'])
+        request_data['user'] = request.user
 
+        try:
+            if request_data.get('address'):
+                request_data['address'] = Address.objects.get(id=request_data['address'])
         except Address.DoesNotExist:
             Response(data={'error': 'Please provide valid address'}, status=status.HTTP_400_BAD_REQUEST)
-        except UserModel.DoesNotExist:
-            Response(data={'error': 'Please provide valid user'}, status=status.HTTP_400_BAD_REQUEST)
 
-        qualifications = validate_n_get(
-            class_name='Qualification', records_ids=request_data.pop("qualification"))
-        specializations = validate_n_get(
-            class_name='Specialization', records_ids=request_data.pop("specialization"))
-        researches = bulk_create_get(
-            class_name='Research', values=request_data.pop("research"))
-        associated_with = validate_n_get(
-            class_name='Organization', records_ids=request_data.pop("associated_with"))
-        languages_can_speak = validate_n_get(
-            class_name='Language', records_ids=request_data.pop("languages_can_speak"))
+        (qualifications, specializations,
+         associated_with, languages_can_speak, discipline) = (None, None, None, None, None)
 
+        if request_data.get("qualification"):
+            qualifications = validate_n_get(
+                class_name='Qualification', records_ids=request_data.pop("qualification"))
+        if request_data.get("specialization"):
+            specializations = validate_n_get(
+                class_name='Specialization', records_ids=request_data.pop("specialization"))
+        if request_data.get("associated_with"):
+            associated_with = validate_n_get(
+                class_name='Organization', records_ids=request_data.pop("associated_with"))
+        if request_data.get("languages_can_speak"):
+            languages_can_speak = validate_n_get(
+                class_name='Language', records_ids=request_data.pop("languages_can_speak"))
+        if request_data.get("discipline"):
+            discipline = validate_n_get(
+                class_name='Discipline', records_ids=request_data.pop("discipline"))
+
+        for key in ('qualifications', 'specializations', 'associated_with',
+                    'languages_can_speak', 'discipline'):
+            if key in request_data:
+                request_data.pop(key)
+
+        request_data['unique_id'] = uuid.uuid4()
         # doctor_profile = DoctorProfile.objects.create(**request_data)
         doctor_profile = DoctorProfile(**request_data)
         doctor_profile.save()
 
         qualifications and doctor_profile.qualification.add(*qualifications)
         specializations and doctor_profile.specialization.add(*specializations)
-        researches and doctor_profile.research.add(*researches)
         associated_with and doctor_profile.associated_with.add(*associated_with)
         languages_can_speak and doctor_profile.languages_can_speak.add(*languages_can_speak)
+        discipline and doctor_profile.discipline.add(*discipline)
 
         return Response(
             data={'success': True, 'result': self.serializer_class(doctor_profile).data},
@@ -99,33 +111,40 @@ class DoctorProfileViewSet(ModelViewSet):
         if resume:
             instance.resume = decode_base64(resume)
 
-        if request_data['address']:
+        if request_data.get('address'):
             try:
                 instance.address_id = request_data['address']
             except Address.DoesNotExist:
                 Response(data={'error': 'Please provide valid address'}, status=status.HTTP_400_BAD_REQUEST)
 
+        if request_data.ge('achievement_research'):
+            instance.achievement_research = request_data['achievement_research']
+
         instance.save()
-        if request_data["qualification"]:
+        if request_data.get("qualification"):
             qualifications = validate_n_get(
                 class_name='Qualification', records_ids=request_data.pop("qualification"))
             qualifications and instance.qualification.add(*qualifications)
-        if request_data["specialization"]:
+        if request_data.get("specialization"):
             specializations = validate_n_get(
                 class_name='Specialization', records_ids=request_data.pop("specialization"))
             specializations and instance.specialization.add(*specializations)
-        if request_data["research"]:
-            researches = validate_n_get(
-                class_name='Research', records_ids=request_data.pop("research"))
-            researches and instance.research.add(*researches)
-        if request_data["associated_with"]:
+        if request_data.get("achievement_research"):
+            instance.achievement_research = request_data["achievement_research"]
+
+        if request_data.get("associated_with"):
             associated_with = validate_n_get(
                 class_name='Organization', records_ids=request_data.pop("associated_with"))
             associated_with and instance.associated_with.add(*associated_with)
-        if request_data["languages_can_speak"]:
+        if request_data.get("languages_can_speak"):
             languages_can_speak = validate_n_get(
                 class_name='Language', records_ids=request_data.pop("languages_can_speak"))
             languages_can_speak and instance.languages_can_speak.add(*languages_can_speak)
+
+        if request_data.get("discipline"):
+            discipline = validate_n_get(
+                class_name='Discipline', records_ids=request_data.pop("discipline"))
+            discipline and instance.discipline.add(*discipline)
 
         return Response(data={'success': True}, status=status.HTTP_200_OK)
 

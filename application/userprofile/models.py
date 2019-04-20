@@ -46,7 +46,7 @@ class DoctorProfile(BaseProfileModel):
 class PatientProfile(BaseProfileModel):
     # TODO- handling for multiple prescription and test reports
     case_summary = models.TextField(null=True, blank=True)
-    blood_group = models.ForeignKey(BloodGroup, null=True, blank=True, on_delete=models.DO_NOTHING)
+    blood_group = models.ForeignKey(BloodGroup, null=True, blank=True, on_delete=models.PROTECT)
     weight = models.PositiveIntegerField(help_text="in Kilogram", null=True, blank=True)
     height = models.PositiveIntegerField(help_text="in Centimeters", null=True, blank=True)
     aadhaar_no = models.PositiveIntegerField(null=True, blank=True)
@@ -89,7 +89,7 @@ class Availability(BaseModel):
 
     availability_mode = models.CharField(max_length=9, choices=AVAILABILITY_MODE, default=1)
     # Place where person will be available physically (Offline)
-    venue = models.ForeignKey(Organization, null=True, blank=True, on_delete=models.DO_NOTHING)
+    venue = models.ForeignKey(Organization, null=True, blank=True, on_delete=models.PROTECT)
     # Day and time
     start_time = models.TimeField()
     end_time = models.TimeField()
@@ -115,8 +115,8 @@ class Availability(BaseModel):
     # contact number based on place/mode
     contact_no = models.CharField(max_length=10, validators=[mobile_validator])
 
-    doctor = models.ForeignKey(DoctorProfile, null=True, blank=True, on_delete=models.DO_NOTHING)
-    health_worker = models.ForeignKey(HealthworkerProfile, null=True, blank=True, on_delete=models.DO_NOTHING)
+    doctor = models.ForeignKey(DoctorProfile, null=True, blank=True, on_delete=models.PROTECT)
+    health_worker = models.ForeignKey(HealthworkerProfile, null=True, blank=True, on_delete=models.PROTECT)
 
     def __str__(self):
         return str(self.id)

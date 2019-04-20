@@ -46,7 +46,7 @@ ___________________________________________________________________
     "specialization": [
         1
     ],
-    "research": [],
+    "research": "This is my research",
     "associated_with": [],
     "languages_can_speak": [
         1,
