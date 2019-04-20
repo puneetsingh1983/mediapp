@@ -6,7 +6,7 @@ from django.core.validators import FileExtensionValidator
 
 from common.models import (BaseProfileModel, BaseModel, Qualification,
                            Specialization, Research, Language, BloodGroup,
-                           State)
+                           State, Discipline)
 from organization.models import Organization
 from helper.validators import mobile_validator
 
@@ -24,17 +24,20 @@ AVAILABILITY_MODE = ((MODE_1, 'Online'),
 class DoctorProfile(BaseProfileModel):
     registration_number = models.CharField(max_length=25, unique=True)
     years_of_experience = models.IntegerField()
-    qualification = models.ManyToManyField(Qualification, null=True, blank=True)
-    specialization = models.ManyToManyField(Specialization, null=True, blank=True)
-    research = models.ManyToManyField(Research, null=True, blank=True)
-    associated_with = models.ManyToManyField(Organization, null=True, blank=True)
-    languages_can_speak = models.ManyToManyField(Language, null=True, blank=True)
+    qualification = models.ManyToManyField(Qualification, blank=True)
+    specialization = models.ManyToManyField(Specialization, blank=True)
+    achievement_research = models.TextField(null=True, blank=True,
+                                            help_text="Achievements and researches")
+    associated_with = models.ManyToManyField(Organization, blank=True)
+    languages_can_speak = models.ManyToManyField(Language, blank=True)
     resume = models.FileField(upload_to='documents/doctor/', null=True, blank=True)
                               # validators=[FileExtensionValidator(allowed_extensions=['pdf', 'doc', 'docx'])
     # medical_registration_certificate
     authority_registered_with = models.CharField(max_length=50, null=True, blank=True)
     registration_certificate = models.FileField(upload_to='documents/doctor/')
     profile_pic = models.FileField(upload_to='documents/doctor/', null=True, blank=True)
+    designation = models.CharField(max_length=50, null=True, blank=True)
+    discipline = models.ManyToManyField(Discipline, blank=True)
 
     def __str__(self):
         return self.name
@@ -43,13 +46,13 @@ class DoctorProfile(BaseProfileModel):
 class PatientProfile(BaseProfileModel):
     # TODO- handling for multiple prescription and test reports
     case_summary = models.TextField(null=True, blank=True)
-    blood_group = models.ForeignKey(BloodGroup, null=True, blank=True, on_delete=models.DO_NOTHING)
+    blood_group = models.ForeignKey(BloodGroup, null=True, blank=True, on_delete=models.PROTECT)
     weight = models.PositiveIntegerField(help_text="in Kilogram", null=True, blank=True)
     height = models.PositiveIntegerField(help_text="in Centimeters", null=True, blank=True)
     aadhaar_no = models.PositiveIntegerField(null=True, blank=True)
     alternate_mobile_no = models.PositiveIntegerField(null=True, blank=True)
     profile_pic = models.FileField(upload_to='documents/healthworker/', null=True, blank=True)
-    languages_can_speak = models.ManyToManyField(Language)
+    languages_can_speak = models.ManyToManyField(Language, blank=True)
 
     def __str__(self):
         return self.name
@@ -58,9 +61,9 @@ class PatientProfile(BaseProfileModel):
 class HealthworkerProfile(BaseProfileModel):
     registration_number = models.CharField(max_length=25)
     years_of_experience = models.IntegerField(null=True, blank=True)
-    qualification = models.ManyToManyField(Qualification)
-    associated_with = models.ManyToManyField(Organization)
-    languages_can_speak = models.ManyToManyField(Language)
+    qualification = models.ManyToManyField(Qualification, blank=True)
+    associated_with = models.ManyToManyField(Organization, blank=True)
+    languages_can_speak = models.ManyToManyField(Language, blank=True)
     resume = models.FileField(upload_to='documents/healthworker/', null=True, blank=True)
     #medical_registration_certificate
     registration_certificate = models.FileField(upload_to='documents/healthworker/')
@@ -71,11 +74,11 @@ class HealthworkerProfile(BaseProfileModel):
 
 
 class MedicalRepresentative(BaseProfileModel):
-    qualification = models.ManyToManyField(Qualification)
-    associated_with = models.ManyToManyField(Organization)
+    qualification = models.ManyToManyField(Qualification, blank=True)
+    associated_with = models.ManyToManyField(Organization, blank=True)
     registration_certificate = models.FileField(upload_to='documents/medicalrepresentative/')
     profile_pic = models.FileField(upload_to='documents/medicalrepresentative/', null=True, blank=True)
-    languages_can_speak = models.ManyToManyField(Language)
+    languages_can_speak = models.ManyToManyField(Language, blank=True)
 
     def __str__(self):
         return self.name
@@ -86,7 +89,7 @@ class Availability(BaseModel):
 
     availability_mode = models.CharField(max_length=9, choices=AVAILABILITY_MODE, default=1)
     # Place where person will be available physically (Offline)
-    venue = models.ForeignKey(Organization, null=True, blank=True, on_delete=models.DO_NOTHING)
+    venue = models.ForeignKey(Organization, null=True, blank=True, on_delete=models.PROTECT)
     # Day and time
     start_time = models.TimeField()
     end_time = models.TimeField()
@@ -112,8 +115,8 @@ class Availability(BaseModel):
     # contact number based on place/mode
     contact_no = models.CharField(max_length=10, validators=[mobile_validator])
 
-    doctor = models.ForeignKey(DoctorProfile, null=True, blank=True, on_delete=models.DO_NOTHING)
-    health_worker = models.ForeignKey(HealthworkerProfile, null=True, blank=True, on_delete=models.DO_NOTHING)
+    doctor = models.ForeignKey(DoctorProfile, null=True, blank=True, on_delete=models.PROTECT)
+    health_worker = models.ForeignKey(HealthworkerProfile, null=True, blank=True, on_delete=models.PROTECT)
 
     def __str__(self):
         return str(self.id)

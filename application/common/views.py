@@ -5,11 +5,11 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 
 from .models import (Country, State, Qualification,
                      Language, Specialization, Research,
-                     BloodGroup, Address)
+                     BloodGroup, Address, Discipline)
 from .serializers import (CountrySerializer, StateSerializer,
                           QualificationSerializer, LanguageSerializer,
                           SpecializationSerializer, ResearchSerializer,
-                          BloodGroupSerializer, AddressSerializer)
+                          BloodGroupSerializer, AddressSerializer, DisciplineSerializer)
 
 
 # Create your views here.
@@ -74,4 +74,12 @@ class AddressViewSet(ModelViewSet):
 
     queryset = Address.objects.all()
     serializer_class = AddressSerializer
+    permission_classes = (IsAuthenticated,)
+
+
+class DisciplineViewSet(ModelViewSet):
+    # TODO: Need to implement role or user based permission so that one can't view other's data
+
+    queryset = Discipline.objects.all()
+    serializer_class = DisciplineSerializer
     permission_classes = (IsAuthenticated,)

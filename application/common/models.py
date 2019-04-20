@@ -92,8 +92,8 @@ class Address(models.Model):
     address_line_1 = models.CharField(max_length=50, blank=True, null=True, help_text="Area/Locality/Post")
     address_line_2 = models.CharField(max_length=50, blank=True, null=True, help_text="Street/Village")
     city = models.CharField(max_length=50)
-    state = models.ForeignKey(State, on_delete=models.DO_NOTHING)
-    # country = models.ForeignKey(Country, on_delete=models.DO_NOTHING)
+    state = models.ForeignKey(State, on_delete=models.PROTECT)
+    # country = models.ForeignKey(Country, on_delete=models.PROTECT)
     pincode = models.CharField(max_length=6)
 
     def __str__(self):
@@ -102,16 +102,12 @@ class Address(models.Model):
                 + str(self.state))
 
 
-class Language(models.Model):
+class Language(ModelMixinForTextField, models.Model):
     """Language Model. Ex- Hindi, English, Telugu, """
     text = models.CharField(max_length=15, unique=True)
 
     def __str__(self):
         return self.text
-
-    @classmethod
-    def get_records(cls, id_list):
-        return cls.objects.filter(id__in=id_list)
 
 
 class BaseProfileModel(BaseModel):
@@ -121,8 +117,8 @@ class BaseProfileModel(BaseModel):
     husband_name = models.CharField(max_length=50, null=True, blank=True)
     dob = models.DateField(max_length=8)
     gender = models.CharField(max_length=1, choices=GENDER, default=1)
-    address = models.ForeignKey(Address, on_delete=models.DO_NOTHING, null=True, blank=True)
-    user = models.OneToOneField(AppUserModel, on_delete=models.DO_NOTHING)
+    address = models.ForeignKey(Address, on_delete=models.PROTECT, null=True, blank=True)
+    user = models.ForeignKey(AppUserModel, on_delete=models.PROTECT)
     unique_id = models.UUIDField(default=uuid.uuid4(), unique=True, editable=False)
 
     class Meta:
@@ -133,3 +129,15 @@ class BaseProfileModel(BaseModel):
         today = date.today()
         dob = self.dob
         return today.year - dob.year - ((today.month, today.day) < (dob.month, dob.day))
+
+
+class Discipline(ModelMixinForTextField, models.Model):
+    """Discipline Model. Ex- Allopathy, Homeopathy, Telugu, """
+    text = models.CharField(max_length=15, unique=True)
+
+    def __str__(self):
+        return self.text
+
+    @classmethod
+    def get_records(cls, id_list):
+        return cls.objects.filter(id__in=id_list)
