@@ -74,10 +74,12 @@ class DoctorProfileViewSet(ModelViewSet):
             discipline = validate_n_get(
                 class_name='Discipline', records_ids=request_data.pop("discipline"))
 
-        for key in ('qualifications', 'specializations', 'associated_with',
+        for key in ('qualification', 'specialization', 'associated_with',
                     'languages_can_speak', 'discipline'):
-            if key in request_data:
+            try:
                 request_data.pop(key)
+            except:
+                pass
 
         request_data['unique_id'] = uuid.uuid4()
         # doctor_profile = DoctorProfile.objects.create(**request_data)
