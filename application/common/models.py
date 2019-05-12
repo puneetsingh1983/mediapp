@@ -141,3 +141,11 @@ class Discipline(ModelMixinForTextField, models.Model):
     @classmethod
     def get_records(cls, id_list):
         return cls.objects.filter(id__in=id_list)
+
+
+class RegistrationAuthority(ModelMixinForTextField, models.Model):
+    text = models.CharField(max_length=50)
+    description = models.CharField(max_length=150)
+
+    def __str__(self):
+        return self.text

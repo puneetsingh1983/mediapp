@@ -6,7 +6,7 @@ from django.core.validators import FileExtensionValidator
 
 from common.models import (BaseProfileModel, BaseModel, Qualification,
                            Specialization, Research, Language, BloodGroup,
-                           State, Discipline)
+                           State, Discipline, RegistrationAuthority)
 from organization.models import Organization
 from helper.validators import mobile_validator
 
@@ -33,7 +33,7 @@ class DoctorProfile(BaseProfileModel):
     resume = models.FileField(upload_to='documents/doctor/', null=True, blank=True)
                               # validators=[FileExtensionValidator(allowed_extensions=['pdf', 'doc', 'docx'])
     # medical_registration_certificate
-    authority_registered_with = models.CharField(max_length=50, null=True, blank=True)
+    authority_registered_with = models.ForeignKey(RegistrationAuthority, null=True, blank=True)
     registration_certificate = models.FileField(upload_to='documents/doctor/')
     profile_pic = models.FileField(upload_to='documents/doctor/', null=True, blank=True)
     designation = models.CharField(max_length=50, null=True, blank=True)

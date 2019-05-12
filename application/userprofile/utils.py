@@ -1,4 +1,4 @@
-from common.models import Qualification, Specialization, Research, Language, Discipline
+from common.models import Qualification, Specialization, Research, Language, Discipline, RegistrationAuthority
 from organization.models import Organization
 
 
@@ -22,6 +22,8 @@ def validate_n_get(class_name, records_ids):
         model_class = Organization
     elif class_name == 'Discipline':
         model_class = Discipline
+    elif class_name == 'RegistrationAuthority':
+        model_class = RegistrationAuthority
 
     records = model_class.get_records(records_ids)
     if len(records_ids) != records.count():
