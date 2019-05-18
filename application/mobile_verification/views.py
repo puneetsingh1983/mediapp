@@ -61,7 +61,6 @@ class VerifyOTPViewSet(ViewSet):
         if is_valid_mobile(mobile) and token:
             token = int(token)
             is_verified, error = OTP.verify_token(mobile, token)
-
             if error:
                 return_dict, _status = {'success': False,
                                         'verified': is_verified,

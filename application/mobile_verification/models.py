@@ -28,14 +28,12 @@ class OTP(BaseModel):
             # get un-verified mobile token and update flag
             obj = cls.objects.filter(mobile=mobile, token=token, verified=False).latest('created_on')
             if (timezone.now() - obj.created_on) > timedelta(seconds=settings.TOKEN_VALIDITY_PERIOD):
-                raise Exception ("Given OTP is expired")
+                is_valid, error = False, "Given OTP is expired"
             obj.verified = is_valid = True  # TODO: as of now setting it to true because TOTP verification is not working in Amazon machine deployment
             obj.save()
         except Exception as exp:
-            is_valid, error = False, exp or "Either mobile number or OTP is incorrect."
+            is_valid, error = False, str(exp) or "Either mobile number or OTP is incorrect."
         return is_valid, error
-        # else:
-        #     return False, "Either mobile number or OTP is not correct."
 
     @classmethod
     def create_new(cls, mobile):
