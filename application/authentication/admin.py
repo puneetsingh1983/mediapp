@@ -33,7 +33,7 @@ class AppUserChangeForm(UserChangeForm):
 
 class AppUserAdmin(UserAdmin):
     fieldsets = (
-        (None, {'fields': ('username', 'mobile', 'password')}),
+        (None, {'fields': ('username', 'mobile', 'password', 'full_name')}),
         ('Personal info', {'fields': ('user_type', 'user_status', 'is_otp_verified')}),
         ('Permissions', {'fields': ('is_active', 'is_staff', 'is_superuser', 'is_admin',
                                        'groups', 'user_permissions')}),
@@ -42,7 +42,7 @@ class AppUserAdmin(UserAdmin):
     add_fieldsets = (
         (None, {
             'classes': ('wide',),
-            'fields': ('username', 'mobile', 'password1', 'password2', 'is_active', 'is_staff', 'is_superuser')}
+            'fields': ('username', 'mobile', 'password1', 'password2', 'is_active', 'is_staff', 'is_superuser', 'full_name')}
          ),
     )
 

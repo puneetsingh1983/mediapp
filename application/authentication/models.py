@@ -50,6 +50,8 @@ class AppUserManager(BaseUserManager):
                           mobile=mobile, user_type=user_type or DEFAULT_TYPE,
                           user_status=user_status or PENDING_APPROVAL)
         user.set_password(password)
+        user.full_name = kwargs.get('full_name')
+
         user.save()
         return user
 

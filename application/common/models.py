@@ -107,16 +107,12 @@ class Address(models.Model):
                 + str(self.state))
 
 
-class Language(models.Model):
+class Language(ModelMixinForTextField, models.Model):
     """Language Model. Ex- Hindi, English, Telugu, """
     text = models.CharField(max_length=15, unique=True)
 
     def __str__(self):
         return self.text
-
-    @classmethod
-    def get_records(cls, id_list):
-        return cls.objects.filter(id__in=id_list)
 
 
 class BaseProfileModel(BaseModel):
@@ -138,3 +134,23 @@ class BaseProfileModel(BaseModel):
         today = date.today()
         dob = self.dob
         return today.year - dob.year - ((today.month, today.day) < (dob.month, dob.day))
+
+
+class Discipline(ModelMixinForTextField, models.Model):
+    """Discipline Model. Ex- Allopathy, Homeopathy, Telugu, """
+    text = models.CharField(max_length=15, unique=True)
+
+    def __str__(self):
+        return self.text
+
+    @classmethod
+    def get_records(cls, id_list):
+        return cls.objects.filter(id__in=id_list)
+
+
+class RegistrationAuthority(ModelMixinForTextField, models.Model):
+    text = models.CharField(max_length=50)
+    description = models.CharField(max_length=150)
+
+    def __str__(self):
+        return self.text

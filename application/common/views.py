@@ -1,15 +1,19 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 from rest_framework.viewsets import ModelViewSet
+from rest_framework.views import APIView
 from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework.response import Response
+from rest_framework import status
 
 from .models import (Country, State, Qualification,
                      Language, Specialization, Research,
-                     BloodGroup, Address)
+                     BloodGroup, Address, Discipline, RegistrationAuthority)
 from .serializers import (CountrySerializer, StateSerializer,
                           QualificationSerializer, LanguageSerializer,
                           SpecializationSerializer, ResearchSerializer,
-                          BloodGroupSerializer, AddressSerializer)
+                          BloodGroupSerializer, AddressSerializer, DisciplineSerializer,
+                          RegistrationAuthoritySerializer)
 
 
 # Create your views here.
@@ -75,3 +79,49 @@ class AddressViewSet(ModelViewSet):
     queryset = Address.objects.all()
     serializer_class = AddressSerializer
     permission_classes = (IsAuthenticated,)
+
+
+class DisciplineViewSet(ModelViewSet):
+    # TODO: Need to implement role or user based permission so that one can't view other's data
+
+    queryset = Discipline.objects.all()
+    serializer_class = DisciplineSerializer
+    permission_classes = (IsAuthenticated,)
+
+
+class RegistrationAuthorityViewSet(ModelViewSet):
+    # TODO: Need to implement role or user based permission so that one can't view other's data
+
+    queryset = RegistrationAuthority.objects.all()
+    serializer_class = RegistrationAuthoritySerializer
+    permission_classes = (IsAuthenticated,)
+
+
+class StaticObjectsView(APIView):
+    def get(self, request, format=None):
+        registeration_auths = RegistrationAuthoritySerializer(
+            RegistrationAuthority.objects.all(), many=True)
+        disciplines = DisciplineSerializer(
+            Discipline.objects.all(), many=True)
+        specializations = SpecializationSerializer(
+            Specialization.objects.all(), many=True)
+        bloodGroups = BloodGroupSerializer(
+            BloodGroup.objects.all(), many=True)
+        languages = LanguageSerializer(
+            Language.objects.all(), many=True)
+        qualifications = QualificationSerializer(
+            Qualification.objects.all(), many=True)
+        states = StateSerializer(
+            State.objects.all(), many=True)
+        countries = CountrySerializer(
+            Country.objects.all(), many=True)
+
+        return Response(data={'registered_authority': registeration_auths.data,
+                              'discipline': disciplines.data,
+                              'specialization': specializations.data,
+                              'bloodGroup': bloodGroups.data,
+                              'language': languages.data,
+                              'qualification': qualifications.data,
+                              'state': states.data,
+                              'country': countries.data
+                              }, status=status.HTTP_400_BAD_REQUEST)

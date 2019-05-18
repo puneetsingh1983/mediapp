@@ -19,7 +19,7 @@ class GenerateOTPViewSet(ViewSet):
 
     @transaction.atomic
     def create(self, request):
-        request_data = request.data
+        request_data = request.data.copy()
         mobile = str(request_data.get("mobile"))
         email = str(request_data.get("email"))
         no_otp_for_registered_user = request_data.get("no_otp_for_registered_user", False)
@@ -43,7 +43,8 @@ class GenerateOTPViewSet(ViewSet):
                     data=OTPSerializer(otp_created).data,
                     status=status.HTTP_201_CREATED)  # HTTP code 201 for newly created record
         else:
-            return Response(data={'error': 'Invalid mobile number Or invalid email address'})
+            return Response(data={'error': 'Invalid mobile number Or invalid email address'},
+                            status=status.HTTP_400_BAD_REQUEST)
 
 
 class VerifyOTPViewSet(ViewSet):
@@ -52,7 +53,7 @@ class VerifyOTPViewSet(ViewSet):
     @transaction.atomic
     def create(self, request):
         """Verfiy OTP entered by user"""
-        request_data = request.data
+        request_data = request.data.copy()
 
         mobile = str(request_data.get("mobile"))  # string
         token = request_data.get("otp")  # integer
@@ -60,7 +61,6 @@ class VerifyOTPViewSet(ViewSet):
         if is_valid_mobile(mobile) and token:
             token = int(token)
             is_verified, error = OTP.verify_token(mobile, token)
-
             if error:
                 return_dict, _status = {'success': False,
                                         'verified': is_verified,
@@ -74,4 +74,5 @@ class VerifyOTPViewSet(ViewSet):
 
             return Response(data=return_dict, status=_status)
         else:
-            return Response(data={'success': False, 'error': 'Invalid mobile number or invalid OTP'})
+            return Response(data={'success': False, 'error': 'Invalid mobile number or invalid OTP'},
+                            status=status.HTTP_400_BAD_REQUEST)

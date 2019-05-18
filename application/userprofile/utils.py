@@ -1,4 +1,4 @@
-from common.models import Qualification, Specialization, Research, Language
+from common.models import Qualification, Specialization, Research, Language, Discipline, RegistrationAuthority
 from organization.models import Organization
 
 
@@ -14,12 +14,16 @@ def validate_n_get(class_name, records_ids):
         model_class = Qualification
     elif class_name == 'Specialization':
         model_class = Specialization
-    elif class_name == 'Research':
-        model_class = Research
+    # elif class_name == 'Research':
+    #     model_class = Research
     elif class_name == 'Language':
         model_class = Language
     elif class_name == 'Organization':
-        model_class = Organization.get_organizations
+        model_class = Organization
+    elif class_name == 'Discipline':
+        model_class = Discipline
+    elif class_name == 'RegistrationAuthority':
+        model_class = RegistrationAuthority
 
     records = model_class.get_records(records_ids)
     if len(records_ids) != records.count():
@@ -40,11 +44,11 @@ def bulk_create_get(class_name, values):
         model_class = Qualification
     elif class_name == 'Specialization':
         model_class = Specialization
-    elif class_name == 'Research':
-        model_class = Research
+    # elif class_name == 'Research':
+    #     model_class = Research
     elif class_name == 'Language':
         model_class = Language
     elif class_name == 'Organization':
-        model_class = Organization.get_organizations
+        model_class = Organization
 
     return model_class.create_bulk_records(values=values, return_records=True)

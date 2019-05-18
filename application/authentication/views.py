@@ -44,7 +44,13 @@ class AppUserViewSet(ModelViewSet):
     @transaction.atomic
     def create(self, request):
         """Create New User in system."""
-        request_data = request.data
+        request_data = request.data.copy()
+
+        if not (request_data.get('username') and request_data.get('password') and request_data.get('mobile')):
+            return Response(
+                data={'success': False,
+                      'error': 'Missing parameters: <username> or <password> or <mobile> is not provided'},
+                status=status.HTTP_400_BAD_REQUEST)
 
         # check if user is already registered
         try:
@@ -56,8 +62,8 @@ class AppUserViewSet(ModelViewSet):
         except AppUserModel.DoesNotExist:
             pass
 
-        request_data.setdefault("is_staff", True)
-        request_data.setdefault("is_admin", False)
+        # request_data.setdefault("is_staff", True)
+        # request_data.setdefault("is_admin", False)
         request_data.setdefault("user_type", DEFAULT_TYPE)
         request_data.setdefault("user_status", PENDING_APPROVAL)
 

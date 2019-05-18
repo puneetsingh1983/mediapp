@@ -26,7 +26,7 @@ class Organization(BaseModel):
     gst_no = models.CharField(max_length=15)
     license_no = models.CharField(max_length=25, help_text="Required for hospitals/clinics/medical-stores")
     head_of_department = models.CharField(max_length=50, null=True, blank=True)
-    specialization = models.ManyToManyField(Specialization, null=True, blank=True)
+    specialization = models.ManyToManyField(Specialization)
     license_doc = models.FileField(upload_to='documents/org/%Y/%m/%d/', null=True, blank=True)
     org_type = models.ForeignKey(OrganizationType, on_delete=models.PROTECT)
 
@@ -34,5 +34,5 @@ class Organization(BaseModel):
         return self.name
 
     @classmethod
-    def get_organizations(cls, id_list):
+    def get_records(cls, id_list):
         return cls.objects.filter(id__in=id_list)

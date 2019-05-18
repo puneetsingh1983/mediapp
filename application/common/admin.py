@@ -4,7 +4,8 @@ from __future__ import unicode_literals
 from django.contrib import admin
 
 from .models import (
-    Qualification, Research, BloodGroup, State, Country, Specialization, Address, Language)
+    Qualification, Research, BloodGroup, State, Country,
+    Specialization, Address, Language, Discipline, RegistrationAuthority)
 
 # Register your models here.
 @admin.register(Qualification)
@@ -44,4 +45,14 @@ class AddressAdmin(admin.ModelAdmin):
 
 @admin.register(Language)
 class ResearchAdmin(admin.ModelAdmin):
+    pass
+
+
+@admin.register(Discipline)
+class DisciplineAdmin(admin.ModelAdmin):
+    pass
+
+
+@admin.register(RegistrationAuthority)
+class RegistrationAuthorityAdmin(admin.ModelAdmin):
     pass
