@@ -43,7 +43,8 @@ class GenerateOTPViewSet(ViewSet):
                     data=OTPSerializer(otp_created).data,
                     status=status.HTTP_201_CREATED)  # HTTP code 201 for newly created record
         else:
-            return Response(data={'error': 'Invalid mobile number Or invalid email address'})
+            return Response(data={'error': 'Invalid mobile number Or invalid email address'},
+                            status=status.HTTP_400_BAD_REQUEST)
 
 
 class VerifyOTPViewSet(ViewSet):
@@ -74,4 +75,5 @@ class VerifyOTPViewSet(ViewSet):
 
             return Response(data=return_dict, status=_status)
         else:
-            return Response(data={'success': False, 'error': 'Invalid mobile number or invalid OTP'})
+            return Response(data={'success': False, 'error': 'Invalid mobile number or invalid OTP'},
+                            status=status.HTTP_400_BAD_REQUEST)
