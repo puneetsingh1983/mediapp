@@ -13,7 +13,7 @@ from .serializers import (
     DoctorProfileSerializer, HealthworkerProfileSerializer,
     AvailabilitySerializer, PatientProfileSerializer, MRProfileSerializer, TestModelBase64Serializer)
 from .filters import DoctorFilter, HealthworkerFilter, PatientFilter
-from common.models import Address, BloodGroup
+from common.models import Address, BloodGroup, RegistrationAuthority
 from helper.file_handler import decode_base64
 from authentication.models import AppUserModel as UserModel
 from .utils import validate_n_get, bulk_create_get
@@ -52,8 +52,15 @@ class DoctorProfileViewSet(ModelViewSet):
         try:
             if request_data.get('address'):
                 request_data['address'] = Address.objects.get(id=request_data['address'])
+            if request_data.get('authority_registered_with'):
+                request_data['authority_registered_with'] = RegistrationAuthority.objects.get(
+                    id=request_data['authority_registered_with'])
+
         except Address.DoesNotExist:
             Response(data={'error': 'Please provide valid address'}, status=status.HTTP_400_BAD_REQUEST)
+        except RegistrationAuthority.DoesNotExist:
+            Response(data={'error': 'Please provide valid registration authority'},
+                     status=status.HTTP_400_BAD_REQUEST)
 
         (qualifications, specializations,
          associated_with, languages_can_speak, discipline) = (None, None, None, None, None)
@@ -118,6 +125,14 @@ class DoctorProfileViewSet(ModelViewSet):
                 instance.address_id = request_data['address']
             except Address.DoesNotExist:
                 Response(data={'error': 'Please provide valid address'}, status=status.HTTP_400_BAD_REQUEST)
+
+        if request_data.get('authority_registered_with'):
+            try:
+                request_data['authority_registered_with'] = RegistrationAuthority.objects.get(
+                    id=request_data['authority_registered_with'])
+            except RegistrationAuthority.DoesNotExist:
+                Response(data={'error': 'Please provide valid registration authority'},
+                         status=status.HTTP_400_BAD_REQUEST)
 
         if request_data.ge('achievement_research'):
             instance.achievement_research = request_data['achievement_research']

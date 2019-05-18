@@ -5,7 +5,7 @@ from django.contrib import admin
 
 from .models import (
     Qualification, Research, BloodGroup, State, Country,
-    Specialization, Address, Language, Discipline)
+    Specialization, Address, Language, Discipline, RegistrationAuthority)
 
 # Register your models here.
 @admin.register(Qualification)
@@ -50,4 +50,9 @@ class ResearchAdmin(admin.ModelAdmin):
 
 @admin.register(Discipline)
 class DisciplineAdmin(admin.ModelAdmin):
+    pass
+
+
+@admin.register(RegistrationAuthority)
+class RegistrationAuthorityAdmin(admin.ModelAdmin):
     pass
