@@ -19,14 +19,17 @@ class Organization(BaseModel):
     """Organization Model. Ex- Hospital, Clinic, Digital Clinic or Pharmacy or Medical Store"""
     name = models.CharField(max_length=100)
     address = models.ForeignKey(Address, on_delete=models.PROTECT)
-    contact_no = models.CharField(max_length=10, validators=[mobile_validator])
+    mobile_no = models.CharField(max_length=10, validators=[mobile_validator])
+    landline_no = models.CharField(max_length=11, null=True, blank=True,
+                                   help_text="Stored as <STD-PHONE_NO>. Ex- '011-32323234' or '07582-676123'")
     contact_person = models.CharField(max_length=50)
     email = models.EmailField()
     associated_company = models.ForeignKey('self', null=True, blank=True, on_delete=models.PROTECT)
-    gst_no = models.CharField(max_length=15)
-    license_no = models.CharField(max_length=25, help_text="Required for hospitals/clinics/medical-stores")
+    gst_no = models.CharField(max_length=15, null=True, blank=True)
+    license_no = models.CharField(max_length=25, null=True, blank=True,
+                                  help_text="Required for hospitals/clinics/medical-stores")
     head_of_department = models.CharField(max_length=50, null=True, blank=True)
-    specialization = models.ManyToManyField(Specialization)
+    specialization = models.ManyToManyField(Specialization, blank=True)
     license_doc = models.FileField(upload_to='documents/org/%Y/%m/%d/', null=True, blank=True)
     org_type = models.ForeignKey(OrganizationType, on_delete=models.PROTECT)
 
@@ -36,3 +39,13 @@ class Organization(BaseModel):
     @classmethod
     def get_records(cls, id_list):
         return cls.objects.filter(id__in=id_list)
+
+    def save(self, *args, **kwargs):
+        if self.org_type.text.lower() == 'hospital':
+            if not self.gst_no:
+                raise ValueError("GST No not provided!")
+            if not self.license_no:
+                raise ValueError("License No not provided!")
+
+        super(Organization, self).save(*args, **kwargs)
+

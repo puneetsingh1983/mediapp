@@ -50,6 +50,7 @@ class DoctorProfileViewSet(ModelViewSet):
         request_data['user'] = request.user
 
         try:
+            # Address will be added separately (different workflow) so need to pass ID only
             if request_data.get('address'):
                 request_data['address'] = Address.objects.get(id=request_data['address'])
             if request_data.get('authority_registered_with'):
@@ -109,18 +110,19 @@ class DoctorProfileViewSet(ModelViewSet):
         request_data = request.data
 
         certificate = request_data.get('registration_certificate')
-        if certificate:
+        if certificate and certificate.get('base64'):
             instance.registration_certificate = decode_base64(certificate)
 
         profile_pic = request_data.get('profile_pic')
-        if profile_pic:
+        if profile_pic and profile_pic.get('base64'):
             instance.profile_pic = decode_base64(profile_pic)
 
         resume = request_data.get('resume')
-        if resume:
+        if resume and resume.get('base64'):
             instance.resume = decode_base64(resume)
 
         if request_data.get('address'):
+            # Address will be added separately (different workflow) so need to pass ID only
             try:
                 instance.address_id = request_data['address']
             except Address.DoesNotExist:
@@ -223,15 +225,15 @@ class HealthworkerProfileViewSet(ModelViewSet):
         request_data = request.data
 
         certificate = request_data.get('registration_certificate')
-        if certificate:
+        if certificate and certificate.get('base64'):
             instance.registration_certificate = decode_base64(certificate)
 
         profile_pic = request_data.get('profile_pic')
-        if profile_pic:
+        if profile_pic and profile_pic.get('base64'):
             instance.profile_pic = decode_base64(profile_pic)
 
         resume = request_data.get('resume')
-        if resume:
+        if resume and resume.get('base64'):
             instance.resume = decode_base64(resume)
 
         if request_data['address']:
@@ -312,7 +314,7 @@ class PatientProfileViewSet(ModelViewSet):
         request_data = request.data
 
         profile_pic = request_data.get('profile_pic')
-        if profile_pic:
+        if profile_pic and profile_pic.get('base64'):
             instance.profile_pic = decode_base64(profile_pic)
 
         if request_data.get('case_summary'):
