@@ -22,7 +22,7 @@ class Organization(BaseModel):
     mobile_no = models.CharField(max_length=10, validators=[mobile_validator])
     landline_no = models.CharField(max_length=11, null=True, blank=True,
                                    help_text="Stored as <STD-PHONE_NO>. Ex- '011-32323234' or '07582-676123'")
-    contact_person = models.CharField(max_length=50)
+    contact_person = models.CharField(max_length=50, null=True, blank=True)
     email = models.EmailField()
     associated_company = models.ForeignKey('self', null=True, blank=True, on_delete=models.PROTECT)
     gst_no = models.CharField(max_length=15, null=True, blank=True)
