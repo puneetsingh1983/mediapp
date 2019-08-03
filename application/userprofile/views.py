@@ -16,8 +16,9 @@ from .filters import DoctorFilter, HealthworkerFilter, PatientFilter
 from common.models import Address, BloodGroup, RegistrationAuthority
 from helper.file_handler import decode_base64
 from authentication.models import AppUserModel as UserModel
-from .utils import validate_n_get, bulk_create_get
+from .utils import validate_n_get
 from helper.permissions import IsSelfOrIsAdministrator
+from helper.address_util import build_address
 
 
 # views
@@ -52,15 +53,17 @@ class DoctorProfileViewSet(ModelViewSet):
         try:
             # Address will be added separately (different workflow) so need to pass ID only
             if request_data.get('address'):
-                request_data['address'] = Address.objects.get(id=request_data['address'])
+                request_data['address'] = build_address(request_data.get('address'))
+        except Exception:
+            return Response(data={'error': 'Please provide valid address'}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
             if request_data.get('authority_registered_with'):
                 request_data['authority_registered_with'] = RegistrationAuthority.objects.get(
                     id=request_data['authority_registered_with'])
 
-        except Address.DoesNotExist:
-            Response(data={'error': 'Please provide valid address'}, status=status.HTTP_400_BAD_REQUEST)
         except RegistrationAuthority.DoesNotExist:
-            Response(data={'error': 'Please provide valid registration authority'},
+            return Response(data={'error': 'Please provide valid registration authority'},
                      status=status.HTTP_400_BAD_REQUEST)
 
         (qualifications, specializations,
@@ -83,7 +86,7 @@ class DoctorProfileViewSet(ModelViewSet):
                 class_name='Discipline', records_ids=request_data.pop("discipline"))
 
         for key in ('qualification', 'specialization', 'associated_with',
-                    'languages_can_speak', 'discipline'):
+                    'languages_can_speak', 'discipline', 'research'):
             try:
                 request_data.pop(key)
             except:
@@ -106,11 +109,12 @@ class DoctorProfileViewSet(ModelViewSet):
 
     @transaction.atomic
     def update(self, request, *args, **kwargs):
+
         instance = self.get_object()
         request_data = request.data
 
         certificate = request_data.get('registration_certificate')
-        if certificate and certificate.get('base64'):
+        if certificate and certificate == dict:
             instance.registration_certificate = decode_base64(certificate)
 
         profile_pic = request_data.get('profile_pic')
@@ -124,19 +128,19 @@ class DoctorProfileViewSet(ModelViewSet):
         if request_data.get('address'):
             # Address will be added separately (different workflow) so need to pass ID only
             try:
-                instance.address_id = request_data['address']
-            except Address.DoesNotExist:
-                Response(data={'error': 'Please provide valid address'}, status=status.HTTP_400_BAD_REQUEST)
+                instance.address = build_address(request_data.get('address'))
+            except:
+                return Response(data={'error': 'Please provide valid address'}, status=status.HTTP_400_BAD_REQUEST)
 
         if request_data.get('authority_registered_with'):
             try:
-                request_data['authority_registered_with'] = RegistrationAuthority.objects.get(
+                instance.authority_registered_with = RegistrationAuthority.objects.get(
                     id=request_data['authority_registered_with'])
             except RegistrationAuthority.DoesNotExist:
-                Response(data={'error': 'Please provide valid registration authority'},
+                return Response(data={'error': 'Please provide valid registration authority'},
                          status=status.HTTP_400_BAD_REQUEST)
 
-        if request_data.ge('achievement_research'):
+        if request_data.get('achievement_research'):
             instance.achievement_research = request_data['achievement_research']
 
         instance.save()
@@ -193,13 +197,13 @@ class HealthworkerProfileViewSet(ModelViewSet):
         request_data['resume'] = resume and decode_base64(resume) or None
 
         try:
-            request_data['address'] = Address.objects.get(id=request_data['address'])
+            request_data['address'] = build_address(request_data.get('address'))
             request_data['user'] = UserModel.objects.get(id=request_data['user'])
 
         except Address.DoesNotExist:
-            Response(data={'error': 'Please provide valid address'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(data={'error': 'Please provide valid address'}, status=status.HTTP_400_BAD_REQUEST)
         except UserModel.DoesNotExist:
-            Response(data={'error': 'Please provide valid user'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(data={'error': 'Please provide valid user'}, status=status.HTTP_400_BAD_REQUEST)
 
         qualifications = validate_n_get(
             class_name='Qualification', records_ids=request_data.pop("qualification"))
@@ -238,9 +242,9 @@ class HealthworkerProfileViewSet(ModelViewSet):
 
         if request_data['address']:
             try:
-                instance.address_id = request_data['address']
+                instance.address_id = build_address(request_data.get('address'))
             except Address.DoesNotExist:
-                Response(data={'error': 'Please provide valid address'}, status=status.HTTP_400_BAD_REQUEST)
+                return Response(data={'error': 'Please provide valid address'}, status=status.HTTP_400_BAD_REQUEST)
 
         instance.save()
 
@@ -285,16 +289,16 @@ class PatientProfileViewSet(ModelViewSet):
         request_data['alternate_mobile_no'] = request_data.get('alternate_mobile_no')
 
         try:
-            request_data['address'] = Address.objects.get(id=request_data['address'])
+            request_data['address'] = build_address(request_data.get('address'))
             request_data['user'] = UserModel.objects.get(id=request_data['user'])
             request_data['blood_group'] = BloodGroup.objects.get(id=request_data['blood_group'])
 
         except Address.DoesNotExist:
-            Response(data={'error': 'Please provide valid address'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(data={'error': 'Please provide valid address'}, status=status.HTTP_400_BAD_REQUEST)
         except UserModel.DoesNotExist:
-            Response(data={'error': 'Please provide valid user'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(data={'error': 'Please provide valid user'}, status=status.HTTP_400_BAD_REQUEST)
         except BloodGroup.DoesNotExist:
-            Response(data={'error': 'Please provide valid blood group'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(data={'error': 'Please provide valid blood group'}, status=status.HTTP_400_BAD_REQUEST)
 
         languages_can_speak = validate_n_get(
             class_name='Language', records_ids=request_data.pop("languages_can_speak"))
@@ -330,14 +334,14 @@ class PatientProfileViewSet(ModelViewSet):
 
         if request_data['address']:
             try:
-                instance.address_id = request_data['address']
+                instance.address_id = build_address(request_data.get('address'))
             except Address.DoesNotExist:
-                Response(data={'error': 'Please provide valid address'}, status=status.HTTP_400_BAD_REQUEST)
+                return Response(data={'error': 'Please provide valid address'}, status=status.HTTP_400_BAD_REQUEST)
         if request_data['blood_group']:
             try:
                 instance.blood_group_id = request_data['blood_group']
             except Address.DoesNotExist:
-                Response(data={'error': 'Please provide valid blood group'}, status=status.HTTP_400_BAD_REQUEST)
+                return Response(data={'error': 'Please provide valid blood group'}, status=status.HTTP_400_BAD_REQUEST)
 
         instance.save()
 

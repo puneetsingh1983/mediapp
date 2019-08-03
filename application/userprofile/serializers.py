@@ -2,8 +2,12 @@
 from drf_extra_fields.fields import Base64FileField
 from rest_framework.serializers import ModelSerializer
 from .models import DoctorProfile, HealthworkerProfile, Availability, PatientProfile, MedicalRepresentative, TestModelBase64
+from common.serializers import AddressSerializer
+
 
 class DoctorProfileSerializer(ModelSerializer):
+    address = AddressSerializer()
+    
     class Meta:
         model = DoctorProfile
         fields = '__all__'

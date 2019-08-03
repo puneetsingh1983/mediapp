@@ -1,4 +1,5 @@
-from common.models import Qualification, Specialization, Research, Language, Discipline, RegistrationAuthority
+from common.models import (Qualification, Specialization, Research, Language, Discipline,
+                           RegistrationAuthority)
 from organization.models import Organization
 
 
@@ -27,7 +28,7 @@ def validate_n_get(class_name, records_ids):
 
     records = model_class.get_records(records_ids)
     if len(records_ids) != records.count():
-        raise Exception('Some records are not valid. Please verify once')
+        raise Exception('Some records are not valid for {}. Please verify once'.format(class_name,))
 
     return records
 
@@ -52,3 +53,17 @@ def bulk_create_get(class_name, values):
         model_class = Organization
 
     return model_class.create_bulk_records(values=values, return_records=True)
+
+
+# def build_address(data_dict):
+#     record_id = data_dict.pop('id')
+#     address, created = Address.objecs.update_or_create(id=record_id, defaults=data_dict)
+#         # address_line_1=data_dict.get("address_line_1"),
+#         # address_line_2=data_dict.get("address_line_2"),
+#         # address_line_3=data_dict.get("address_line_3"),
+#         # district=data_dict.get("district"),
+#         # city=data_dict.get("city"),
+#         # pincode=data_dict.get("pincode"),
+#         # state=data_dict.get("state"))
+#     return address
+

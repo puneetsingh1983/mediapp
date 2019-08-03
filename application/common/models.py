@@ -4,6 +4,7 @@ import uuid
 from datetime import date
 
 from django.db import models
+from django.utils.text import slugify
 
 from authentication.models import AppUserModel
 
@@ -12,6 +13,10 @@ GENDER = (('-', ' -- '),
           ('M', 'Male'),
           ('F', 'Female'),
           ('O', 'Other'))
+
+
+def generate_slug(value):
+    return slugify(value)
 
 
 class BaseModel(models.Model):
@@ -38,20 +43,28 @@ class ModelMixinForTextField(object):
 
 
 class Country(models.Model):
-    id = models.CharField(max_length=3, primary_key=True)
+    id = models.SlugField(max_length=3, primary_key=True)
     name = models.CharField(max_length=20)
 
     def __str__(self):
-        return self.name
+        return self.id
+
+    def save(self, *args, **kwargs):
+        self.id = generate_slug(self.id)
+        super(Country, self).save(*args, **kwargs)
 
 
 class State(models.Model):
-    id = models.CharField(max_length=3, primary_key=True)
+    id = models.SlugField(max_length=3, primary_key=True)
     name = models.CharField(max_length=20)
     country = models.ForeignKey(Country)
 
     def __str__(self):
-        return self.id + self.country.id
+        return "{}_{}".format(self.id, self.country.id)
+
+    def save(self, *args, **kwargs):
+        self.id = generate_slug(self.id)
+        super(State, self).save(*args, **kwargs)
 
 
 class Qualification(ModelMixinForTextField, models.Model):
@@ -88,16 +101,17 @@ class BloodGroup(ModelMixinForTextField, models.Model):
 
 class Address(models.Model):
     """Address Model"""
-    address_line = models.CharField(max_length=100, blank=True, null=True,  help_text="Building/Flat/Plot No.")
-    address_line_1 = models.CharField(max_length=50, blank=True, null=True, help_text="Area/Locality/Post")
-    address_line_2 = models.CharField(max_length=50, blank=True, null=True, help_text="Street/Village")
+    address_line_1 = models.CharField(max_length=100, blank=True, null=True,  help_text="Building/Flat/Plot No.")
+    address_line_2 = models.CharField(max_length=50, blank=True, null=True, help_text="Area/Locality/Post")
+    address_line_3 = models.CharField(max_length=50, blank=True, null=True, help_text="Street/Village")
+    district = models.CharField(max_length=50)
     city = models.CharField(max_length=50)
     state = models.ForeignKey(State, on_delete=models.PROTECT)
     # country = models.ForeignKey(Country, on_delete=models.PROTECT)
     pincode = models.CharField(max_length=6)
 
     def __str__(self):
-        return (self.address_line [:10] + ", "
+        return (self.address_line_1[:10] + ", "
                 + self.city + ", "
                 + str(self.state))
 
@@ -144,6 +158,14 @@ class Discipline(ModelMixinForTextField, models.Model):
 
 
 class RegistrationAuthority(ModelMixinForTextField, models.Model):
+    text = models.CharField(max_length=50)
+    description = models.CharField(max_length=150)
+
+    def __str__(self):
+        return self.text
+
+
+class Accreditation(ModelMixinForTextField, models.Model):
     text = models.CharField(max_length=50)
     description = models.CharField(max_length=150)
 
