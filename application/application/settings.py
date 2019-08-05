@@ -45,12 +45,14 @@ INSTALLED_APPS = [
     'common',
     'organization',
     'userprofile',
-    'mobile_verification'
+    'mobile_verification',
+    'corsheaders' # TODO- remove in production
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -58,6 +60,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
+CORS_ORIGIN_ALLOW_ALL = True
 ROOT_URLCONF = 'application.urls'
 
 TEMPLATES = [
@@ -197,7 +200,7 @@ EMAIL_USE_TLS = True
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_HOST_USER = 'no.reply.mediapp@gmail.com'
-EMAIL_HOST_PASSWORD = 'noreply1!'
+EMAIL_HOST_PASSWORD = 'mediapp@1'
 EMAIL_PORT = 587
 DEFAULT_FROM_EMAIL = 'no.reply.mediapp@gmail.com'
 
