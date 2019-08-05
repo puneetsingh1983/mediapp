@@ -3,7 +3,7 @@ from __future__ import unicode_literals
 
 from django.db import models
 
-from common.models import BaseModel, Specialization, Address
+from common.models import BaseModel, Specialization, Address, Accreditation
 from helper.validators import mobile_validator
 
 
@@ -32,6 +32,7 @@ class Organization(BaseModel):
     specialization = models.ManyToManyField(Specialization, blank=True)
     license_doc = models.FileField(upload_to='documents/org/%Y/%m/%d/', null=True, blank=True)
     org_type = models.ForeignKey(OrganizationType, on_delete=models.PROTECT)
+    accreditation = models.ForeignKey(Accreditation, on_delete=models.PROTECT, null=True, blank=True)
 
     def __str__(self):
         return self.name
