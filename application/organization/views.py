@@ -29,7 +29,11 @@ class OrganizationViewSet(ModelViewSet):
         request_data = request.data.copy()
 
         if request_data.get('address'):
-            request_data['address'] = build_address(request_data.get('address'))
+            try:
+                request_data['address'] = build_address(request_data.get('address'))
+            except Exception as exp:
+                return Response(data={'error': exp.message},
+                                status=status.HTTP_400_BAD_REQUEST)
         if request_data.get("associated_company"):
             try:
                 request_data['associated_company'] = Organization.objects.get(
@@ -83,9 +87,9 @@ class OrganizationViewSet(ModelViewSet):
             # Address will be added separately (different workflow) so need to pass ID only
             try:
                 instance.address_id = build_address(request_data.get('address'))
-            except:
+            except Exception as exp:
                 # TODO - refactor
-                return Response(data={'error': 'Please provide valid address'}, status=status.HTTP_400_BAD_REQUEST)
+                return Response(data={'error': exp.message}, status=status.HTTP_400_BAD_REQUEST)
 
         if request_data.get('associated_company'):
             try:
