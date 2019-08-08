@@ -54,8 +54,8 @@ class DoctorProfileViewSet(ModelViewSet):
             # Address will be added separately (different workflow) so need to pass ID only
             if request_data.get('address'):
                 request_data['address'] = build_address(request_data.get('address'))
-        except Exception:
-            return Response(data={'error': 'Please provide valid address'}, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as exp:
+            return Response(data={'error': exp.message}, status=status.HTTP_400_BAD_REQUEST)
 
         try:
             if request_data.get('authority_registered_with'):
@@ -129,8 +129,8 @@ class DoctorProfileViewSet(ModelViewSet):
             # Address will be added separately (different workflow) so need to pass ID only
             try:
                 instance.address = build_address(request_data.get('address'))
-            except:
-                return Response(data={'error': 'Please provide valid address'}, status=status.HTTP_400_BAD_REQUEST)
+            except Exception as exp:
+                return Response(data={'error': exp.message}, status=status.HTTP_400_BAD_REQUEST)
 
         if request_data.get('authority_registered_with'):
             try:
@@ -198,10 +198,10 @@ class HealthworkerProfileViewSet(ModelViewSet):
 
         try:
             request_data['address'] = build_address(request_data.get('address'))
+        except Exception as exp:
+            return Response(data={'error': exp.message}, status=status.HTTP_400_BAD_REQUEST)
+        try:
             request_data['user'] = UserModel.objects.get(id=request_data['user'])
-
-        except Address.DoesNotExist:
-            return Response(data={'error': 'Please provide valid address'}, status=status.HTTP_400_BAD_REQUEST)
         except UserModel.DoesNotExist:
             return Response(data={'error': 'Please provide valid user'}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -243,8 +243,8 @@ class HealthworkerProfileViewSet(ModelViewSet):
         if request_data['address']:
             try:
                 instance.address_id = build_address(request_data.get('address'))
-            except Address.DoesNotExist:
-                return Response(data={'error': 'Please provide valid address'}, status=status.HTTP_400_BAD_REQUEST)
+            except Exception as exp:
+                return Response(data={'error': exp.message}, status=status.HTTP_400_BAD_REQUEST)
 
         instance.save()
 
@@ -290,11 +290,11 @@ class PatientProfileViewSet(ModelViewSet):
 
         try:
             request_data['address'] = build_address(request_data.get('address'))
+        except Exception as exp:
+            return Response(data={'error': exp.message}, status=status.HTTP_400_BAD_REQUEST)
+        try:
             request_data['user'] = UserModel.objects.get(id=request_data['user'])
             request_data['blood_group'] = BloodGroup.objects.get(id=request_data['blood_group'])
-
-        except Address.DoesNotExist:
-            return Response(data={'error': 'Please provide valid address'}, status=status.HTTP_400_BAD_REQUEST)
         except UserModel.DoesNotExist:
             return Response(data={'error': 'Please provide valid user'}, status=status.HTTP_400_BAD_REQUEST)
         except BloodGroup.DoesNotExist:
@@ -335,8 +335,8 @@ class PatientProfileViewSet(ModelViewSet):
         if request_data['address']:
             try:
                 instance.address_id = build_address(request_data.get('address'))
-            except Address.DoesNotExist:
-                return Response(data={'error': 'Please provide valid address'}, status=status.HTTP_400_BAD_REQUEST)
+            except Exception as exp:
+                return Response(data={'error': exp.message}, status=status.HTTP_400_BAD_REQUEST)
         if request_data['blood_group']:
             try:
                 instance.blood_group_id = request_data['blood_group']
