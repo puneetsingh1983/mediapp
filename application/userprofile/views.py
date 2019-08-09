@@ -4,14 +4,20 @@ import uuid
 from django.db import transaction
 from rest_framework.viewsets import ModelViewSet
 from rest_framework import status
+from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.decorators import action
 
 from .models import (
-    DoctorProfile, HealthworkerProfile, Availability, PatientProfile, MedicalRepresentative, TestModelBase64)
+    DoctorProfile, HealthworkerProfile, OnlineAvailability,
+    OfflineAvailability, OutdoorAvailability, PatientProfile,
+    MedicalRepresentative, TestModelBase64)
 from .serializers import (
     DoctorProfileSerializer, HealthworkerProfileSerializer,
-    AvailabilitySerializer, PatientProfileSerializer, MRProfileSerializer, TestModelBase64Serializer)
+    OfflineAvailabilitySerializer, OnlineAvailabilitySerializer,
+    OutdoorAvailabilitySerializer,
+    PatientProfileSerializer, MRProfileSerializer, TestModelBase64Serializer)
 from .filters import DoctorFilter, HealthworkerFilter, PatientFilter
 from common.models import Address, BloodGroup, RegistrationAuthority
 from helper.file_handler import decode_base64
@@ -175,6 +181,15 @@ class DoctorProfileViewSet(ModelViewSet):
     def delete(self, request):
         # TODO- not implemented
         pass
+
+    @action(methods=['GET'], detail=True, url_name="availabilities")
+    def availabilities(self, request, pk=None):
+        instance = self.get_object()
+        # import ipdb; ipdb.set_trace()
+        return Response(data={'online': instance.onlineavailability.values(),
+                              'offline': instance.offlineavailability.values(),
+                              'outdoor': instance.outdooravailability.values()
+                              }, status=status.HTTP_200_OK)
 
 
 class HealthworkerProfileViewSet(ModelViewSet):
@@ -364,9 +379,9 @@ class MRProfileViewSet(ModelViewSet):
     # filter_class = PatientFilter
 
 
-class AvailabilityViewSet(ModelViewSet):
-    queryset = Availability.objects.all()
-    serializer_class = AvailabilitySerializer
+# class AvailabilityAPIView(APIView):
+#     queryset = Availability.objects.all()
+#     serializer_class = AvailabilitySerializer
 
 
 class TestModelBase64ViewSet(ModelViewSet):

@@ -21,8 +21,14 @@ def generate_slug(value):
 
 class BaseModel(models.Model):
     """Base Model"""
+
     created_on = models.DateTimeField(auto_now_add=True)
     modified_on = models.DateTimeField(auto_now=True)
+    # TODO - make these mandatory later. Left optional as of now
+    created_by = models.ForeignKey(AppUserModel, null=True, blank=True,
+                                   related_name="%(class)s_created_records")
+    edited_by = models.ForeignKey(AppUserModel, null=True, blank=True,
+                                  related_name="%(class)s_edited_records")
 
     class Meta:
         abstract = True

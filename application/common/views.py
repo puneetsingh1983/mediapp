@@ -124,4 +124,4 @@ class StaticObjectsView(APIView):
                               'qualification': qualifications.data,
                               'state': states.data,
                               'country': countries.data
-                              }, status=status.HTTP_400_BAD_REQUEST)
+                              }, status=status.HTTP_200_OK)
