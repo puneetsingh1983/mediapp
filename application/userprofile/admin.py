@@ -3,7 +3,8 @@ from __future__ import unicode_literals
 from django.contrib import admin
 
 from .models import (DoctorProfile, HealthworkerProfile, PatientProfile, MedicalRepresentative,
-                     OfflineAvailability, OnlineAvailability, OutdoorAvailability)
+                     OfflineAvailability, OnlineAvailability, OutdoorAvailability,
+                     AvailabilitySchedule, ConsultationDetails)
 
 
 # Register your models here.
@@ -39,4 +40,14 @@ class OnlineAvailabilityAdmin(admin.ModelAdmin):
 
 @admin.register(OutdoorAvailability)
 class OutdoorAvailabilityAdmin(admin.ModelAdmin):
+    pass
+
+
+@admin.register(AvailabilitySchedule)
+class AvailabilityScheduleAdmin(admin.ModelAdmin):
+    pass
+
+
+@admin.register(ConsultationDetails)
+class ConsultationDetailsAdmin(admin.ModelAdmin):
     pass

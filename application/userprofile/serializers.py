@@ -2,7 +2,8 @@
 from drf_extra_fields.fields import Base64FileField
 from rest_framework.serializers import ModelSerializer
 from .models import (DoctorProfile, HealthworkerProfile, PatientProfile, MedicalRepresentative,
-                     OfflineAvailability, OnlineAvailability, OutdoorAvailability, TestModelBase64)
+                     OfflineAvailability, OnlineAvailability, OutdoorAvailability,
+                     ConsultationDetails, TestModelBase64)
 from common.serializers import AddressSerializer
 
 
@@ -55,4 +56,10 @@ class OutdoorAvailabilitySerializer(ModelSerializer):
 class OfflineAvailabilitySerializer(ModelSerializer):
     class Meta:
         model = OfflineAvailability
+        fields = '__all__'
+
+
+class ConsultationDetailsSerializer(ModelSerializer):
+    class Meta:
+        model = ConsultationDetails
         fields = '__all__'

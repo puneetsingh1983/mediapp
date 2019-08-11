@@ -10,13 +10,13 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import action
 
 from .models import (
-    DoctorProfile, HealthworkerProfile, OnlineAvailability,
-    OfflineAvailability, OutdoorAvailability, PatientProfile,
+    DoctorProfile, HealthworkerProfile, PatientProfile,
+    OfflineAvailability, OutdoorAvailability, OnlineAvailability, ConsultationDetails,
     MedicalRepresentative, TestModelBase64)
 from .serializers import (
     DoctorProfileSerializer, HealthworkerProfileSerializer,
     OfflineAvailabilitySerializer, OnlineAvailabilitySerializer,
-    OutdoorAvailabilitySerializer,
+    OutdoorAvailabilitySerializer, ConsultationDetailsSerializer,
     PatientProfileSerializer, MRProfileSerializer, TestModelBase64Serializer)
 from .filters import DoctorFilter, HealthworkerFilter, PatientFilter
 from common.models import Address, BloodGroup, RegistrationAuthority
@@ -185,10 +185,10 @@ class DoctorProfileViewSet(ModelViewSet):
     @action(methods=['GET'], detail=True, url_name="availabilities")
     def availabilities(self, request, pk=None):
         instance = self.get_object()
-        # import ipdb; ipdb.set_trace()
-        return Response(data={'online': instance.onlineavailability.values(),
-                              'offline': instance.offlineavailability.values(),
-                              'outdoor': instance.outdooravailability.values()
+        return Response(data={'online': instance.doctor_onlineavailability.values(),
+                              'offline': instance.doctor_offlineavailability.values(),
+                              'outdoor': instance.doctor_outdooravailability.values(),
+                              'consultation': instance.consultation_details.values(),
                               }, status=status.HTTP_200_OK)
 
 
