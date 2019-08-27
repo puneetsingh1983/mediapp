@@ -84,15 +84,17 @@ class MedicalRepresentative(BaseProfileModel):
         return self.name
 
 
-class Availability(BaseModel):
-    """Model to capture person's availability - Online, Offline or Outdoor"""
-
-    availability_mode = models.CharField(max_length=9, choices=AVAILABILITY_MODE, default=1)
-    # Place where person will be available physically (Offline)
-    venue = models.ForeignKey(Organization, null=True, blank=True, on_delete=models.PROTECT)
-    # Day and time
+class AvailabilitySchedule(models.Model):
+    """AvailabilitySchedule: time, Day.
+       Assumption:- re-usability, multiple availabilities can have same schedule
+    """
+    # Schedule: [{ days: ['mon', 'tue'],
+    #             time: {'start': 10:00 AM, 'end': 14:00 PM}}]
+    # Time
     start_time = models.TimeField()
     end_time = models.TimeField()
+
+    # Day
     monday = models.BooleanField(default=False)
     tuesday = models.BooleanField(default=False)
     wednesday = models.BooleanField(default=False)
@@ -101,25 +103,82 @@ class Availability(BaseModel):
     saturday = models.BooleanField(default=False)
     sunday = models.BooleanField(default=False)
 
-    # online
-    online_chat = models.NullBooleanField()
-    online_video_call = models.NullBooleanField()
-    online_voice_call = models.NullBooleanField()
+    def __str__(self):
+        return "{}".format(self.id)
 
-    # outdoor
-    outdoor_travel_upto = models.PositiveIntegerField(null=True, blank=True)
-    outdoor_travel_city = models.CharField(max_length=50, null=True, blank=True)
-    outdoor_travel_state = models.ForeignKey(State, null=True, blank=True)
-    outdoor_travel_locality = models.CharField(max_length=50, null=True, blank=True)
 
-    # contact number based on place/mode
-    contact_no = models.CharField(max_length=10, validators=[mobile_validator])
+class BaseAvailability(BaseModel):
+    doctor = models.ForeignKey(DoctorProfile, on_delete=models.PROTECT,
+                               related_name="doctor_%(class)s")
+    schedule = models.ForeignKey(AvailabilitySchedule, on_delete=models.PROTECT,
+                               related_name="schedule_%(class)s")
+    appointment_limit = models.PositiveIntegerField(null=True, blank=True)
 
-    doctor = models.ForeignKey(DoctorProfile, null=True, blank=True, on_delete=models.PROTECT)
-    health_worker = models.ForeignKey(HealthworkerProfile, null=True, blank=True, on_delete=models.PROTECT)
+    class Meta:
+        abstract = True
 
     def __str__(self):
-        return str(self.id)
+        return "{}".format(self.id)
+
+
+class OfflineAvailability(BaseAvailability):
+    """Offline availability description"""
+
+    # place where doctor will be available for visit
+    venue = models.ForeignKey(Organization, on_delete=models.PROTECT,
+                              related_name="offline_availabilities")
+
+    # consultation fee details will be different as per clinics and Hospitals
+    offline_consultation_fee = models.PositiveIntegerField()
+    offline_discount = models.PositiveIntegerField(null=True, blank=True)
+    contact_no_offline_consultation = models.CharField(max_length=10, validators=[mobile_validator])
+
+
+class OnlineAvailability(BaseAvailability):
+    """Online availability description"""
+
+    chat = models.BooleanField(default=False)
+    video_call = models.BooleanField(default=False)
+    voice_call = models.BooleanField(default=False)
+
+
+class OutdoorAvailability(BaseAvailability):
+    """Outdoor availability description"""
+
+    outdoor_travel_upto = models.PositiveIntegerField(null=True, blank=True)
+    outdoor_travel_city = models.CharField(max_length=50, null=True, blank=True)
+    outdoor_travel_state = models.ForeignKey(State, null=True, blank=True, related_name="outdoor_availabilities")
+    outdoor_travel_locality = models.CharField(max_length=50, null=True, blank=True)
+
+
+class ConsultationDetails(BaseModel):
+    """Default consultation details. Will be appicable if not given specific consultation details"""
+    doctor = models.ForeignKey(DoctorProfile, on_delete=models.PROTECT,
+                               related_name="consultation_details")
+
+    # onffine consultation
+    offline_consultation_fee = models.PositiveIntegerField(null=True, blank=True)
+    offline_discount = models.PositiveIntegerField(null=True, blank=True)
+    contact_no_offline_consultation = models.CharField(
+        max_length=10, validators=[mobile_validator], null=True, blank=True)
+
+    # online consultation
+    contact_no_online_consultation = models.CharField(
+        max_length=10, validators=[mobile_validator], null=True, blank=True)
+    chat_fee = models.PositiveIntegerField(null=True, blank=True)
+    video_call_fee = models.PositiveIntegerField(null=True, blank=True)
+    voice_call_fee = models.PositiveIntegerField(null=True, blank=True)
+
+    chat_discount = models.PositiveIntegerField(null=True, blank=True)
+    video_call_discount = models.PositiveIntegerField(null=True, blank=True)
+    voice_call_discount = models.PositiveIntegerField(null=True, blank=True)
+
+    # outdoor consultation
+    contact_no_outdoor_consultation = models.CharField(
+        max_length=10, validators=[mobile_validator], null=True, blank=True)
+    outdoor_consultation_fee = models.PositiveIntegerField(null=True, blank=True)
+    outdoor_discount = models.PositiveIntegerField(null=True, blank=True)
+    outdoor_additional_charges = models.PositiveIntegerField(null=True, blank=True)
 
 
 class TestModelBase64(models.Model):

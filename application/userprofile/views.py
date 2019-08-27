@@ -4,19 +4,25 @@ import uuid
 from django.db import transaction
 from rest_framework.viewsets import ModelViewSet
 from rest_framework import status
+from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.decorators import action
 
 from .models import (
-    DoctorProfile, HealthworkerProfile, Availability, PatientProfile, MedicalRepresentative, TestModelBase64)
+    DoctorProfile, HealthworkerProfile, PatientProfile,
+    OfflineAvailability, OutdoorAvailability, OnlineAvailability, ConsultationDetails,
+    MedicalRepresentative, TestModelBase64)
 from .serializers import (
     DoctorProfileSerializer, HealthworkerProfileSerializer,
-    AvailabilitySerializer, PatientProfileSerializer, MRProfileSerializer, TestModelBase64Serializer)
+    OfflineAvailabilitySerializer, OnlineAvailabilitySerializer,
+    OutdoorAvailabilitySerializer, ConsultationDetailsSerializer,
+    PatientProfileSerializer, MRProfileSerializer, TestModelBase64Serializer)
 from .filters import DoctorFilter, HealthworkerFilter, PatientFilter
 from common.models import Address, BloodGroup, RegistrationAuthority
 from helper.file_handler import decode_base64
 from authentication.models import AppUserModel as UserModel
-from .utils import validate_n_get
+from .utils import validate_n_get, bulk_create_get
 from helper.permissions import IsSelfOrIsAdministrator
 from helper.address_util import build_address
 
@@ -72,6 +78,10 @@ class DoctorProfileViewSet(ModelViewSet):
         if request_data.get("qualification"):
             qualifications = validate_n_get(
                 class_name='Qualification', records_ids=request_data.pop("qualification"))
+        if request_data.get("other_qualifications"):
+            other_qualifications = bulk_create_get(
+                class_name='Qualification', records_ids=request_data.pop("other_qualifications"))
+
         if request_data.get("specialization"):
             specializations = validate_n_get(
                 class_name='Specialization', records_ids=request_data.pop("specialization"))
@@ -98,6 +108,7 @@ class DoctorProfileViewSet(ModelViewSet):
         doctor_profile.save()
 
         qualifications and doctor_profile.qualification.add(*qualifications)
+        other_qualifications and doctor_profile.qualification.add(*other_qualifications)
         specializations and doctor_profile.specialization.add(*specializations)
         associated_with and doctor_profile.associated_with.add(*associated_with)
         languages_can_speak and doctor_profile.languages_can_speak.add(*languages_can_speak)
@@ -148,6 +159,10 @@ class DoctorProfileViewSet(ModelViewSet):
             qualifications = validate_n_get(
                 class_name='Qualification', records_ids=request_data.pop("qualification"))
             qualifications and instance.qualification.add(*qualifications)
+        if request_data.get("other_qualifications"):
+            other_qualifications = bulk_create_get(
+                class_name='Qualification', values=request_data.pop("other_qualifications"))
+            other_qualifications and instance.qualification.add(*other_qualifications)
         if request_data.get("specialization"):
             specializations = validate_n_get(
                 class_name='Specialization', records_ids=request_data.pop("specialization"))
@@ -169,12 +184,22 @@ class DoctorProfileViewSet(ModelViewSet):
                 class_name='Discipline', records_ids=request_data.pop("discipline"))
             discipline and instance.discipline.add(*discipline)
 
-        return Response(data={'success': True}, status=status.HTTP_200_OK)
+        return Response(data={'success': True, 'result': self.serializer_class(instance).data},
+                        status=status.HTTP_200_OK)
 
     @transaction.atomic
     def delete(self, request):
         # TODO- not implemented
         pass
+
+    @action(methods=['GET'], detail=True, url_name="availabilities")
+    def availabilities(self, request, pk=None):
+        instance = self.get_object()
+        return Response(data={'online': instance.doctor_onlineavailability.values(),
+                              'offline': instance.doctor_offlineavailability.values(),
+                              'outdoor': instance.doctor_outdooravailability.values(),
+                              'consultation': instance.consultation_details.values(),
+                              }, status=status.HTTP_200_OK)
 
 
 class HealthworkerProfileViewSet(ModelViewSet):
@@ -364,9 +389,9 @@ class MRProfileViewSet(ModelViewSet):
     # filter_class = PatientFilter
 
 
-class AvailabilityViewSet(ModelViewSet):
-    queryset = Availability.objects.all()
-    serializer_class = AvailabilitySerializer
+# class AvailabilityAPIView(APIView):
+#     queryset = Availability.objects.all()
+#     serializer_class = AvailabilitySerializer
 
 
 class TestModelBase64ViewSet(ModelViewSet):
