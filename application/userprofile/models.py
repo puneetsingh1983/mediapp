@@ -131,7 +131,9 @@ class OfflineAvailability(BaseAvailability):
     # consultation fee details will be different as per clinics and Hospitals
     offline_consultation_fee = models.PositiveIntegerField()
     offline_discount = models.PositiveIntegerField(null=True, blank=True)
-    contact_no_offline_consultation = models.CharField(max_length=10, validators=[mobile_validator])
+    contact_no_offline_consultation = models.CharField(
+        max_length=11, validators=[mobile_validator],
+        help_text="10 digit mobile number or 11 digit landline number")
 
 
 class OnlineAvailability(BaseAvailability):
@@ -160,11 +162,13 @@ class ConsultationDetails(BaseModel):
     offline_consultation_fee = models.PositiveIntegerField(null=True, blank=True)
     offline_discount = models.PositiveIntegerField(null=True, blank=True)
     contact_no_offline_consultation = models.CharField(
-        max_length=10, validators=[mobile_validator], null=True, blank=True)
+        max_length=11, validators=[mobile_validator], null=True, blank=True,
+        help_text="10 digit mobile number or 11 digit landline number")
 
     # online consultation
     contact_no_online_consultation = models.CharField(
-        max_length=10, validators=[mobile_validator], null=True, blank=True)
+        max_length=11, validators=[mobile_validator], null=True, blank=True,
+        help_text="10 digit mobile number or 11 digit landline number")
     chat_fee = models.PositiveIntegerField(null=True, blank=True)
     video_call_fee = models.PositiveIntegerField(null=True, blank=True)
     voice_call_fee = models.PositiveIntegerField(null=True, blank=True)
@@ -175,7 +179,8 @@ class ConsultationDetails(BaseModel):
 
     # outdoor consultation
     contact_no_outdoor_consultation = models.CharField(
-        max_length=10, validators=[mobile_validator], null=True, blank=True)
+        max_length=11, validators=[mobile_validator], null=True, blank=True,
+        help_text="10 digit mobile number or 11 digit landline number")
     outdoor_consultation_fee = models.PositiveIntegerField(null=True, blank=True)
     outdoor_discount = models.PositiveIntegerField(null=True, blank=True)
     outdoor_additional_charges = models.PositiveIntegerField(null=True, blank=True)
