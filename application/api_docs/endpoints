@@ -54,3 +54,91 @@ ___________________________________________________________________
         1
     ]
 }
+
+---------------------------
+# Create Availability schedules and Consultation Details
+
+      {"doctor": 1,
+        "online":
+            {
+                "schedule": {
+                    "start_time": "10:00 AM",
+                    "end_time": "14:00 PM",
+                    "monday": false,
+                    "tuesday": true,
+                    "wednesday": false,
+                    "thursday": false,
+                    "friday": false,
+                    "saturday": false,
+                    "sunday": false
+                },
+                "appointment_limit": null,
+                "chat": false,
+                "video_call": false,
+                "voice_call": false,
+                "consultation_details": {
+                    "contact_no": "991122334455",
+                    "chat_fee": 100,
+                    "video_call_fee": 100,
+                    "voice_call_fee": 100,
+                    "chat_discount": 20,
+                    "video_call_discount": 20,
+                    "voice_call_discount": 30
+
+                }
+            },
+        "offline":
+            {
+                "schedule": {
+                    "start_time": null,
+                    "end_time": null,
+                    "monday": false,
+                    "tuesday": false,
+                    "wednesday": false,
+                    "thursday": false,
+                    "friday": false,
+                    "saturday": false,
+                    "sunday": false
+                },
+                "appointment_limit": null,
+                "venue": 1, # id of organization (Hospital or Clinic)
+                "offline_consultation_fee": 700,
+                "offline_discount": 50,
+                "contact_no": 110022003399,
+                "consultation_details": {
+                    "contact_no": "991122334455",
+                    "chat_fee": 100,
+                    "video_call_fee": 100,
+                    "voice_call_fee": 100,
+                    "chat_discount": 20,
+                    "video_call_discount": 20,
+                    "voice_call_discount": 30
+
+                }
+            },
+        "outdoor":
+            {
+                "schedule": {
+                    "start_time": null,
+                    "end_time": null,
+                    "monday": false,
+                    "tuesday": false,
+                    "wednesday": false,
+                    "thursday": false,
+                    "friday": false,
+                    "saturday": false,
+                    "sunday": false
+                },
+                "appointment_limit": null,
+                "outdoor_travel_upto": 25, # unit is Km(s)
+                "outdoor_travel_locality": "",
+                "outdoor_travel_city": "Lucknow",
+                "outdoor_travel_state": "up",
+                "consultation_details": {
+                    "contact_no": "991122334455",
+                    "consultation_fee": 100,
+                    "discount": 100,
+                    "additional_charges": 100
+                }
+            }
+      }
