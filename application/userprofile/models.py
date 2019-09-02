@@ -49,7 +49,7 @@ class PatientProfile(BaseProfileModel):
     blood_group = models.ForeignKey(BloodGroup, null=True, blank=True, on_delete=models.PROTECT)
     weight = models.PositiveIntegerField(help_text="in Kilogram", null=True, blank=True)
     height = models.PositiveIntegerField(help_text="in Centimeters", null=True, blank=True)
-    aadhaar_no = models.PositiveIntegerField(null=True, blank=True)
+    aadhaar_no = models.PositiveIntegerField(null=True, blank=True, unique=True)
     alternate_mobile_no = models.PositiveIntegerField(null=True, blank=True)
     profile_pic = models.FileField(upload_to='documents/healthworker/', null=True, blank=True)
     languages_can_speak = models.ManyToManyField(Language, blank=True)
@@ -59,7 +59,7 @@ class PatientProfile(BaseProfileModel):
 
 
 class HealthworkerProfile(BaseProfileModel):
-    registration_number = models.CharField(max_length=25)
+    registration_number = models.CharField(max_length=25, unique=True)
     years_of_experience = models.IntegerField(null=True, blank=True)
     qualification = models.ManyToManyField(Qualification, blank=True)
     associated_with = models.ManyToManyField(Organization, blank=True)
@@ -74,6 +74,7 @@ class HealthworkerProfile(BaseProfileModel):
 
 
 class MedicalRepresentative(BaseProfileModel):
+    registration_number = models.CharField(max_length=25, unique=True)
     qualification = models.ManyToManyField(Qualification, blank=True)
     associated_with = models.ManyToManyField(Organization, blank=True)
     registration_certificate = models.FileField(upload_to='documents/medicalrepresentative/')
@@ -131,9 +132,8 @@ class OfflineAvailability(BaseAvailability):
     # consultation fee details will be different as per clinics and Hospitals
     offline_consultation_fee = models.PositiveIntegerField()
     offline_discount = models.PositiveIntegerField(null=True, blank=True)
-    contact_no_offline_consultation = models.CharField(
-        max_length=11, validators=[mobile_validator],
-        help_text="10 digit mobile number or 11 digit landline number")
+    contact_no = models.CharField(max_length=11, validators=[mobile_validator],
+                                  help_text="10 digit mobile number or 11 digit landline number")
 
 
 class OnlineAvailability(BaseAvailability):
@@ -155,7 +155,7 @@ class OutdoorAvailability(BaseAvailability):
 
 class ConsultationDetails(BaseModel):
     """Default consultation details. Will be appicable if not given specific consultation details"""
-    doctor = models.ForeignKey(DoctorProfile, on_delete=models.PROTECT,
+    doctor = models.ForeignKey(DoctorProfile, on_delete=models.PROTECT, unique=True,
                                related_name="consultation_details")
 
     # onffine consultation

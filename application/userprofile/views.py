@@ -11,7 +11,8 @@ from rest_framework.decorators import action
 
 from .models import (
     DoctorProfile, HealthworkerProfile, PatientProfile,
-    OfflineAvailability, OutdoorAvailability, OnlineAvailability, ConsultationDetails,
+    OfflineAvailability, OutdoorAvailability, OnlineAvailability,
+    ConsultationDetails, AvailabilitySchedule,
     MedicalRepresentative, TestModelBase64)
 from .serializers import (
     DoctorProfileSerializer, HealthworkerProfileSerializer,
@@ -24,7 +25,9 @@ from helper.file_handler import decode_base64
 from authentication.models import AppUserModel as UserModel
 from .utils import validate_n_get, bulk_create_get
 from helper.permissions import IsSelfOrIsAdministrator
-from helper.address_util import build_address
+from helper.address_util import build_address, get_state
+from helper.exception_response_handlers import (
+    MissingParameterInRequestException, BadRequestParamResponseHandler)
 
 
 # views
@@ -122,7 +125,7 @@ class DoctorProfileViewSet(ModelViewSet):
     def update(self, request, *args, **kwargs):
 
         instance = self.get_object()
-        request_data = request.data
+        request_data = request.data.copy()
 
         certificate = request_data.get('registration_certificate')
         if certificate and certificate == dict:
@@ -200,6 +203,26 @@ class DoctorProfileViewSet(ModelViewSet):
                               'outdoor': instance.doctor_outdooravailability.values(),
                               'consultation': instance.consultation_details.values(),
                               }, status=status.HTTP_200_OK)
+
+    # @action(methods=['POST'], detail=True, url_path="create-availabilities",
+    #         url_name="create-availabilities")
+    # def create_availabilities(self, request, pk=None):
+    #     instance = self.get_object()
+    #     request_data = request.data
+    #     online = request_data.get('online')
+    #     if online:
+    #         schedule = request_data.get('schedule')
+    #         if schedule:
+    #             request_data['schedule'] = AvailabilitySchedule.objects.get_or_create(**schedule)
+    #
+    #         request_data['created_by'] = request.user
+    #         online_avlty = OnlineAvailability(**request_data)
+    #     online_avlty.save()
+    #     return Response(data={'online': instance.doctor_onlineavailability.values(),
+    #                           'offline': instance.doctor_offlineavailability.values(),
+    #                           'outdoor': instance.doctor_outdooravailability.values(),
+    #                           'consultation': instance.consultation_details.values(),
+    #                           }, status=status.HTTP_200_OK)
 
 
 class HealthworkerProfileViewSet(ModelViewSet):
@@ -389,9 +412,126 @@ class MRProfileViewSet(ModelViewSet):
     # filter_class = PatientFilter
 
 
-# class AvailabilityAPIView(APIView):
-#     queryset = Availability.objects.all()
-#     serializer_class = AvailabilitySerializer
+class AvailabilityAPIView(APIView):
+    permission_classes = (IsAuthenticated, IsSelfOrIsAdministrator)
+
+    @transaction.atomic
+    @BadRequestParamResponseHandler
+    def post(self, request, format=None):
+        # request_data = request.data.copy()
+        # 1. check for schedule, create if not exists
+        # 2. create record
+
+        try:
+            doctor = DoctorProfile.objects.get(id=request.get('doctor'))
+        except DoctorProfile.DoesNotExist as exp:
+            return Response(
+                data={'error': 'Please provide valid doctor for given availability details'},
+                status=status.HTTP_400_BAD_REQUEST)
+
+        default_consultation_details = {}
+        online = request.get('online')
+        offline = request.get('offline')
+        outdoor = request.get('outdoor')
+        if online:
+            online['doctor'] = doctor
+
+            # Schedules
+            schedule = online.get('schedule')
+            if schedule:
+                online['schedule'] = AvailabilitySchedule.objects.get_or_create(**schedule)
+            else:
+                raise MissingParameterInRequestException('schedule')
+
+            # Consultation details
+            if online.get('consultation_details'):
+                online_consultation = online.pop('consultation_details')
+                default_consultation_details.update({
+                    'contact_no_online_consultation': online_consultation.get('contact_no'),
+                    'chat_fee': online_consultation.get('chat_fee'),
+                    'video_call_fee': online_consultation.get('video_call_fee'),
+                    'voice_call_fee': online_consultation.get('voice_call_fee'),
+                    'chat_discount': online_consultation.get('chat_discount'),
+                    'video_call_discount': online_consultation.get('video_call_discount'),
+                    'voice_call_discount': online_consultation.get('voice_call_discount'),
+                })
+
+            # creating availability
+            online['created_by'] = request.user
+            online_avlty = OnlineAvailability(**online)
+            online_avlty.save()
+
+        if offline:
+            offline['doctor'] = doctor
+
+            # Schedules
+            schedule = offline.get('schedule')
+            if schedule:
+                offline['schedule'] = AvailabilitySchedule.objects.get_or_create(**schedule)
+            else:
+                raise MissingParameterInRequestException('schedule')
+
+            # Consultation details
+            if offline.get('consultation_details'):
+                offine_consultation = offline.pop('consultation_details')
+
+            # creating availability
+            offline['created_by'] = request.user
+            offline_avlty = OfflineAvailability(**offline)
+            offline_avlty.save()
+
+        if outdoor:
+            outdoor['doctor'] = doctor
+
+            # Schedules
+            schedule = outdoor.get('schedule')
+            if schedule:
+                outdoor['schedule'] = AvailabilitySchedule.objects.get_or_create(**schedule)
+            else:
+                raise MissingParameterInRequestException('schedule')
+
+            outdoor['outdoor_travel_state'] = get_state(outdoor.get('outdoor_travel_state'))
+            # Consultation details
+            if outdoor.get('consultation_details'):
+                outdoor_consultation = outdoor.pop('consultation_details')
+                default_consultation_details.update({
+                    'contact_no_outdoor_consultation': outdoor_consultation.get('contact_no'),
+                    'outdoor_consultation_fee': outdoor_consultation.get('chat_fee'),
+                    'outdoor_discount': outdoor_consultation.get('video_call_fee'),
+                    'outdoor_additional_charges': outdoor_consultation.get('voice_call_fee')
+                })
+
+            # creating availability
+            outdoor['created_by'] = request.user
+            outdoor_avlty = OutdoorAvailability(**offline)
+            outdoor_avlty.save()
+
+        # consultation details
+        if default_consultation_details:
+            obj, created = ConsultationDetails.objects.update_or_create(doctor=doctor,
+                                                                        defaults=default_consultation_details)
+
+        return Response(
+            data={'success': True, 'result': {}}, status=status.HTTP_201_CREATED)
+
+
+    @transaction.atomic
+    def update(self, request, *args, **kwargs):
+
+        instance = self.get_object()
+        request_data = request.data.copy()
+
+
+class OfflineAvailabilityAPIView(ModelViewSet):
+    queryset = OfflineAvailability.objects.all()
+    serializer_class = OfflineAvailabilitySerializer
+    permission_classes = (IsAuthenticated, IsSelfOrIsAdministrator)
+
+
+class OutdoorAvailabilityAPIView(ModelViewSet):
+    queryset = OutdoorAvailability.objects.all()
+    serializer_class = OutdoorAvailabilitySerializer
+    permission_classes = (IsAuthenticated, IsSelfOrIsAdministrator)
 
 
 class TestModelBase64ViewSet(ModelViewSet):
