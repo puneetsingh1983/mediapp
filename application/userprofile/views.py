@@ -243,6 +243,7 @@ class HealthworkerProfileViewSet(ModelViewSet):
 
         resume = request_data.get('resume')
         request_data['resume'] = resume and decode_base64(resume) or None
+        request_data['unique_id'] = uuid.uuid4()
 
         try:
             request_data['address'] = build_address(request_data.get('address'))
@@ -335,6 +336,7 @@ class PatientProfileViewSet(ModelViewSet):
         request_data['height'] = request_data.get('height')
         request_data['aadhaar_no'] = request_data.get('aadhaar_no')
         request_data['alternate_mobile_no'] = request_data.get('alternate_mobile_no')
+        request_data['unique_id'] = uuid.uuid4()
 
         try:
             request_data['address'] = build_address(request_data.get('address'))
@@ -520,18 +522,6 @@ class AvailabilityAPIView(APIView):
 
         instance = self.get_object()
         request_data = request.data.copy()
-
-
-class OfflineAvailabilityAPIView(ModelViewSet):
-    queryset = OfflineAvailability.objects.all()
-    serializer_class = OfflineAvailabilitySerializer
-    permission_classes = (IsAuthenticated, IsSelfOrIsAdministrator)
-
-
-class OutdoorAvailabilityAPIView(ModelViewSet):
-    queryset = OutdoorAvailability.objects.all()
-    serializer_class = OutdoorAvailabilitySerializer
-    permission_classes = (IsAuthenticated, IsSelfOrIsAdministrator)
 
 
 class TestModelBase64ViewSet(ModelViewSet):

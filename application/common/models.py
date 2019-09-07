@@ -107,6 +107,7 @@ class BloodGroup(ModelMixinForTextField, models.Model):
 
 class Address(models.Model):
     """Address Model"""
+
     address_line_1 = models.CharField(max_length=100, blank=True, null=True,  help_text="Building/Flat/Plot No.")
     address_line_2 = models.CharField(max_length=50, blank=True, null=True, help_text="Area/Locality/Post")
     address_line_3 = models.CharField(max_length=50, blank=True, null=True, help_text="Street/Village")
@@ -132,6 +133,7 @@ class Language(ModelMixinForTextField, models.Model):
 
 class BaseProfileModel(BaseModel):
     """Base Profile Model"""
+
     name = models.CharField(max_length=50)
     father_name = models.CharField(max_length=50, null=True, blank=True)
     husband_name = models.CharField(max_length=50, null=True, blank=True)
@@ -140,6 +142,7 @@ class BaseProfileModel(BaseModel):
     address = models.ForeignKey(Address, on_delete=models.PROTECT, null=True, blank=True)
     user = models.ForeignKey(AppUserModel, on_delete=models.PROTECT)
     unique_id = models.UUIDField(default=uuid.uuid4(), unique=True, editable=False)
+    languages_can_speak = models.ManyToManyField(Language, blank=True)
 
     class Meta:
         abstract = True
