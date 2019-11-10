@@ -547,4 +547,4 @@ class TestModelBase64ViewSet(ModelViewSet):
         serializer_ = TestModelBase64Serializer(data=serialzeinfo)
         serializer_.is_valid()
         serializer_.save()
-        print file_field
+        print (file_field)
