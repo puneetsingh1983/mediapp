@@ -33,7 +33,7 @@ urlpatterns = [
     url(r'^admin/', admin.site.urls),
     url(r'^api/v1/api-token-auth/', obtain_jwt_token),
     url(r'^api/v1/verify-jwt-token/', verify_jwt_token),
-    url(r'^$', api_endpoints)
+    url(r'^docs/', api_endpoints)
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 
