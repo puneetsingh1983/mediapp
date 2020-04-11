@@ -26,9 +26,11 @@ class BaseModel(models.Model):
     modified_on = models.DateTimeField(auto_now=True)
     # TODO - make these mandatory later. Left optional as of now
     created_by = models.ForeignKey(AppUserModel, null=True, blank=True,
-                                   related_name="%(class)s_created_records")
+                                   related_name="%(class)s_created_records",
+                                   on_delete=models.PROTECT)
     edited_by = models.ForeignKey(AppUserModel, null=True, blank=True,
-                                  related_name="%(class)s_edited_records")
+                                  related_name="%(class)s_edited_records",
+                                  on_delete=models.PROTECT)
 
     class Meta:
         abstract = True
@@ -63,7 +65,7 @@ class Country(models.Model):
 class State(models.Model):
     id = models.SlugField(max_length=3, primary_key=True)
     name = models.CharField(max_length=20)
-    country = models.ForeignKey(Country)
+    country = models.ForeignKey(Country, on_delete=models.PROTECT)
 
     def __str__(self):
         return "{}_{}".format(self.id, self.country.id)

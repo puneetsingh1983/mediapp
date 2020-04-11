@@ -4,7 +4,7 @@ from django.contrib import admin
 
 from .models import (DoctorProfile, HealthworkerProfile, PatientProfile, MedicalRepresentative,
                      OfflineAvailability, OnlineAvailability, OutdoorAvailability,
-                     AvailabilitySchedule, ConsultationDetails)
+                     AvailabilitySchedule, MasterConsultationFeeDiscountDetails)
 
 
 # Register your models here.
@@ -48,6 +48,6 @@ class AvailabilityScheduleAdmin(admin.ModelAdmin):
     pass
 
 
-@admin.register(ConsultationDetails)
-class ConsultationDetailsAdmin(admin.ModelAdmin):
+@admin.register(MasterConsultationFeeDiscountDetails)
+class MasterConsultationFeeDiscountDetails(admin.ModelAdmin):
     pass

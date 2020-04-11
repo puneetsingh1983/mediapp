@@ -3,7 +3,7 @@ from rest_framework.serializers import ModelSerializer
 from .models import (Country, State, Qualification,
                      Language, Specialization,
                      BloodGroup, Address, Research, Discipline,
-                     RegistrationAuthority)
+                     RegistrationAuthority, Accreditation)
 
 
 class AddressSerializer(ModelSerializer):
@@ -63,4 +63,10 @@ class DisciplineSerializer(ModelSerializer):
 class RegistrationAuthoritySerializer(ModelSerializer):
     class Meta:
         model = RegistrationAuthority
+        fields = '__all__'
+
+
+class AccreditationSerializer(ModelSerializer):
+    class Meta:
+        model = Accreditation
         fields = '__all__'

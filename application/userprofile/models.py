@@ -48,8 +48,9 @@ class DoctorProfile(BaseProfileModel):
     resume = models.FileField(upload_to='documents/doctor/', null=True, blank=True)
                               # validators=[FileExtensionValidator(allowed_extensions=['pdf', 'doc', 'docx'])
     # medical_registration_certificate
-    authority_registered_with = models.ForeignKey(RegistrationAuthority, null=True, blank=True)
-    registration_certificate = models.FileField(upload_to='documents/doctor/')
+    authority_registered_with = models.ForeignKey(RegistrationAuthority, null=True,
+                                                  blank=True, on_delete=models.PROTECT)
+    registration_certificate = models.FileField(upload_to='documents/doctor/', null=True, blank=True)
     profile_pic = models.FileField(upload_to='documents/doctor/', null=True, blank=True)
     designation = models.CharField(max_length=50, null=True, blank=True)
     discipline = models.ManyToManyField(Discipline, blank=True)
@@ -68,12 +69,11 @@ class PatientProfile(BaseProfileModel):
     profile_pic = models.FileField(upload_to='documents/patient/', null=True, blank=True)
     # languages_can_speak = models.ManyToManyField(Language, blank=True)
     occupation = models.CharField(max_length=50, blank=True, null=True)
-    identity_card_type = models.CharField(max_length=1, choices=ID_CARD_TYPE, default='')
+    identity_card_type = models.CharField(max_length=3, choices=ID_CARD_TYPE, default='')
     identity_card_no = models.CharField(max_length=50, null=True, blank=True)
     referred_by = models.CharField(max_length=70, blank=True, null=True)
     have_mediclaim = models.BooleanField(default=False)
     dob = models.DateField(max_length=8, blank=True, null=True)
-
 
     def __str__(self):
         return self.name
@@ -87,7 +87,7 @@ class HealthworkerProfile(BaseProfileModel):
     # languages_can_speak = models.ManyToManyField(Language, blank=True)
     resume = models.FileField(upload_to='documents/healthworker/', null=True, blank=True)
     #medical_registration_certificate
-    registration_certificate = models.FileField(upload_to='documents/healthworker/')
+    registration_certificate = models.FileField(upload_to='documents/healthworker/', null=True, blank=True)
     profile_pic = models.FileField(upload_to='documents/healthworker/', null=True, blank=True)
 
     def __str__(self):
@@ -98,7 +98,7 @@ class MedicalRepresentative(BaseProfileModel):
     registration_number = models.CharField(max_length=25, unique=True)
     qualification = models.ManyToManyField(Qualification, blank=True)
     associated_with = models.ManyToManyField(Organization, blank=True)
-    registration_certificate = models.FileField(upload_to='documents/medicalrepresentative/')
+    registration_certificate = models.FileField(upload_to='documents/medicalrepresentative/', null=True, blank=True)
     profile_pic = models.FileField(upload_to='documents/medicalrepresentative/', null=True, blank=True)
     # languages_can_speak = models.ManyToManyField(Language, blank=True)
 
@@ -108,7 +108,6 @@ class MedicalRepresentative(BaseProfileModel):
 
 class AvailabilitySchedule(models.Model):
     """AvailabilitySchedule: time, Day.
-       Assumption:- re-usability, multiple availabilities can have same schedule
     """
     # Schedule: [{ days: ['mon', 'tue'],
     #             time: {'start': 10:00 AM, 'end': 14:00 PM}}]
@@ -132,7 +131,7 @@ class AvailabilitySchedule(models.Model):
 class BaseAvailability(BaseModel):
     doctor = models.ForeignKey(DoctorProfile, on_delete=models.PROTECT,
                                related_name="doctor_%(class)s")
-    schedule = models.ForeignKey(AvailabilitySchedule, on_delete=models.PROTECT,
+    schedule = models.OneToOneField(AvailabilitySchedule, on_delete=models.PROTECT,
                                related_name="schedule_%(class)s")
     appointment_limit = models.PositiveIntegerField(null=True, blank=True)
 
@@ -151,8 +150,8 @@ class OfflineAvailability(BaseAvailability):
                               related_name="offline_availabilities")
 
     # consultation fee details will be different as per clinics and Hospitals
-    offline_consultation_fee = models.PositiveIntegerField()
-    offline_discount = models.PositiveIntegerField(null=True, blank=True)
+    consultation_fee = models.PositiveIntegerField()
+    discount = models.PositiveIntegerField(null=True, blank=True)
     contact_no = models.CharField(max_length=11, validators=[mobile_validator],
                                   help_text="10 digit mobile number or 11 digit landline number")
 
@@ -170,12 +169,14 @@ class OutdoorAvailability(BaseAvailability):
 
     outdoor_travel_upto = models.PositiveIntegerField(null=True, blank=True)
     outdoor_travel_city = models.CharField(max_length=50, null=True, blank=True)
-    outdoor_travel_state = models.ForeignKey(State, null=True, blank=True, related_name="outdoor_availabilities")
+    outdoor_travel_state = models.ForeignKey(State, null=True,
+                                             blank=True, related_name="outdoor_availabilities",
+                                             on_delete=models.PROTECT)
     outdoor_travel_locality = models.CharField(max_length=50, null=True, blank=True)
 
 
-class ConsultationDetails(BaseModel):
-    """Default consultation details. Will be appicable if not given specific consultation details"""
+class MasterConsultationFeeDiscountDetails(BaseModel):
+    """Default consultation details. Will be applicable if not given specific consultation details"""
     doctor = models.OneToOneField(DoctorProfile, on_delete=models.PROTECT)
 
     # offline consultation
