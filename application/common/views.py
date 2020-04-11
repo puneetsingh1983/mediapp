@@ -6,14 +6,16 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
 
-from .models import (Country, State, Qualification,
+from .models import (Country, State, Qualification, Accreditation,
                      Language, Specialization, Research,
                      BloodGroup, Address, Discipline, RegistrationAuthority)
-from .serializers import (CountrySerializer, StateSerializer,
+from .serializers import (CountrySerializer, StateSerializer, AccreditationSerializer,
                           QualificationSerializer, LanguageSerializer,
                           SpecializationSerializer, ResearchSerializer,
                           BloodGroupSerializer, AddressSerializer, DisciplineSerializer,
                           RegistrationAuthoritySerializer)
+from organization.models import OrganizationType
+from organization.serializers import OrganizationTypeSerializer
 
 
 # Create your views here.
@@ -115,6 +117,11 @@ class StaticObjectsView(APIView):
             State.objects.all(), many=True)
         countries = CountrySerializer(
             Country.objects.all(), many=True)
+        organization_type = OrganizationTypeSerializer(
+            OrganizationType.objects.all(), many=True)
+        accreditation = AccreditationSerializer(
+            Accreditation.objects.all(), many=True)
+        research = ResearchSerializer(Research.objects.all(), many=True)
 
         return Response(data={'registered_authority': registeration_auths.data,
                               'discipline': disciplines.data,
@@ -123,5 +130,8 @@ class StaticObjectsView(APIView):
                               'language': languages.data,
                               'qualification': qualifications.data,
                               'state': states.data,
-                              'country': countries.data
+                              'country': countries.data,
+                              'org_type': organization_type.data,
+                              'accreditation': accreditation.data,
+                              'research': research.data,
                               }, status=status.HTTP_200_OK)

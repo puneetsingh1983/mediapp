@@ -16,8 +16,8 @@ class DoesNotExistInSystemException(Exception):
     """Raised when a required parameter is missing in request"""
 
     def __init__(self, db_table, value, example=None):
-        message = "{0} - does not exist in table {1}. Please provide valid value. {}".format(
-            value, db_table or '')
+        message = "{0} - does not exist in table {1}. Please provide valid value. {2}".format(
+            value, db_table or '', example or '')
 
         super(DoesNotExistInSystemException, self).__init__(message)
 
@@ -33,5 +33,5 @@ class BadRequestParamResponseHandler(object):
         try:
             return self.func_obj(*args, **kwargs)
         except (MissingParameterInRequestException, DoesNotExistInSystemException) as exp:
-            Response(data={'error': exp.message},
-                     status=status.HTTP_400_BAD_REQUEST)
+            return Response(data={'error': str(exp)},
+                            status=status.HTTP_400_BAD_REQUEST)

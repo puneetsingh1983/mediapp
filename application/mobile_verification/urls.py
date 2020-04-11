@@ -6,8 +6,8 @@ from .views import GenerateOTPViewSet, VerifyOTPViewSet
 
 
 router = routers.DefaultRouter()
-router.register(r'generate-otp', GenerateOTPViewSet, base_name='generate-otp')
-router.register(r'verify-otp', VerifyOTPViewSet, base_name='verify-otp')
+router.register(r'generate-otp', GenerateOTPViewSet, basename='generate-otp')
+router.register(r'verify-otp', VerifyOTPViewSet, basename='verify-otp')
 
 urlpatterns = [
     url(r'^api/v1/mobile/', include(router.urls)),
