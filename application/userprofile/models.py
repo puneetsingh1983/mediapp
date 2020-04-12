@@ -34,6 +34,14 @@ ID_CARD_TYPE = (('', ' -- '),
                 (PAN_CARD, 'Pan Card'),
                 (COMPANY_ID_CARD, 'Company ID Card'),)
 
+SELF, FATHER, MOTHER, SPOUSE, CHILD = 'se', 'fa', 'mo', 'sp', 'ch'
+RELATIONSHIP = (('', ' -- '),
+                (SELF, 'Self'),
+                (FATHER, 'Father'),
+                (MOTHER, 'Mother'),
+                (SPOUSE, 'Spouse'),
+                (CHILD, 'Child'))
+
 
 # Profiles
 class DoctorProfile(BaseProfileModel):
@@ -61,20 +69,30 @@ class DoctorProfile(BaseProfileModel):
 
 class PatientProfile(BaseProfileModel):
     # TODO- handling for multiple prescription and test reports
-    case_summary = models.TextField(null=True, blank=True)
+    problem_summary = models.TextField(null=True, blank=True)
     blood_group = models.ForeignKey(BloodGroup, null=True, blank=True, on_delete=models.PROTECT)
     weight = models.PositiveIntegerField(help_text="in Kilogram", null=True, blank=True)
     height = models.PositiveIntegerField(help_text="in Centimeters", null=True, blank=True)
     alternate_mobile_no = models.PositiveIntegerField(null=True, blank=True)
     profile_pic = models.FileField(upload_to='documents/patient/', null=True, blank=True)
     # languages_can_speak = models.ManyToManyField(Language, blank=True)
-    occupation = models.CharField(max_length=50, blank=True, null=True)
+    occupation = models.CharField(max_length=100, blank=True, null=True)
     identity_card_type = models.CharField(max_length=3, choices=ID_CARD_TYPE, default='')
     identity_card_no = models.CharField(max_length=50, null=True, blank=True)
     referred_by = models.CharField(max_length=70, blank=True, null=True)
-    have_mediclaim = models.BooleanField(default=False)
+    medi_insurance = models.BooleanField(default=False)
     dob = models.DateField(max_length=8, blank=True, null=True)
+    relationship = models.CharField(max_length=2, choices=RELATIONSHIP, default='')
 
+    # Health Status
+    # existing_disease = models.CharField()
+    # disease_category = models.CharField
+    # surgery = models.CharField()
+    # allergy = models.CharField()
+    # immunization = models.CharField()
+    # lifestyle = models.CharField()
+    # alcohol_addiction = models.BooleanField(default=False)
+    # smoking = models.BooleanField(default=False)
     def __str__(self):
         return self.name
 
@@ -101,6 +119,10 @@ class MedicalRepresentative(BaseProfileModel):
     registration_certificate = models.FileField(upload_to='documents/medicalrepresentative/', null=True, blank=True)
     profile_pic = models.FileField(upload_to='documents/medicalrepresentative/', null=True, blank=True)
     # languages_can_speak = models.ManyToManyField(Language, blank=True)
+    # medical_registration_certificate
+    authority_registered_with = models.ForeignKey(RegistrationAuthority, null=True,
+                                                  blank=True, on_delete=models.PROTECT)
+    achievements = models.CharField(max_length=150)
 
     def __str__(self):
         return self.name
