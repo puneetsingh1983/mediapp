@@ -34,13 +34,14 @@ ID_CARD_TYPE = (('', ' -- '),
                 (PAN_CARD, 'Pan Card'),
                 (COMPANY_ID_CARD, 'Company ID Card'),)
 
-SELF, FATHER, MOTHER, SPOUSE, CHILD = 'se', 'fa', 'mo', 'sp', 'ch'
+SELF, FATHER, MOTHER, SPOUSE, CHILD, OTHER = 'se', 'fa', 'mo', 'sp', 'ch', 'ot'
 RELATIONSHIP = (('', ' -- '),
                 (SELF, 'Self'),
                 (FATHER, 'Father'),
                 (MOTHER, 'Mother'),
                 (SPOUSE, 'Spouse'),
-                (CHILD, 'Child'))
+                (CHILD, 'Child'),
+                (OTHER, 'Other'))
 
 
 # Profiles
@@ -75,14 +76,13 @@ class PatientProfile(BaseProfileModel):
     height = models.PositiveIntegerField(help_text="in Centimeters", null=True, blank=True)
     alternate_mobile_no = models.PositiveIntegerField(null=True, blank=True)
     profile_pic = models.FileField(upload_to='documents/patient/', null=True, blank=True)
-    # languages_can_speak = models.ManyToManyField(Language, blank=True)
     occupation = models.CharField(max_length=100, blank=True, null=True)
     identity_card_type = models.CharField(max_length=3, choices=ID_CARD_TYPE, default='')
     identity_card_no = models.CharField(max_length=50, null=True, blank=True)
     referred_by = models.CharField(max_length=70, blank=True, null=True)
     medi_insurance = models.BooleanField(default=False)
     dob = models.DateField(max_length=8, blank=True, null=True)
-    relationship = models.CharField(max_length=2, choices=RELATIONSHIP, default='')
+    relationship_with_user = models.CharField(max_length=2, choices=RELATIONSHIP, default='')
 
     # Health Status
     # existing_disease = models.CharField()
@@ -122,7 +122,7 @@ class MedicalRepresentative(BaseProfileModel):
     # medical_registration_certificate
     authority_registered_with = models.ForeignKey(RegistrationAuthority, null=True,
                                                   blank=True, on_delete=models.PROTECT)
-    achievements = models.CharField(max_length=150)
+    achievements = models.CharField(max_length=150, null=True, blank=True)
 
     def __str__(self):
         return self.name
