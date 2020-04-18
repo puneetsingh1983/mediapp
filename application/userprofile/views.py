@@ -200,10 +200,11 @@ class DoctorProfileViewSet(ModelViewSet):
     @action(methods=['GET'], detail=True, url_name="availabilities")
     def availabilities(self, request, pk=None):
         instance = self.get_object()
+        consultation_fee_details = MasterConsultationFeeDiscountDetails.objects.filter(doctor_id=instance.id)
         return Response(data={'online': instance.doctor_onlineavailability.values(),
                               'offline': instance.doctor_offlineavailability.values(),
                               'outdoor': instance.doctor_outdooravailability.values(),
-                              'consultation': instance.consultation_details.values(),
+                              'consultation': consultation_fee_details,
                               }, status=status.HTTP_200_OK)
 
     # @action(methods=['POST'], detail=True, url_path="create-availabilities",

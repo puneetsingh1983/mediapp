@@ -203,7 +203,7 @@ class OutdoorAvailability(BaseAvailability):
 
 class MasterConsultationFeeDiscountDetails(BaseModel):
     """Default consultation details. Will be applicable if not given specific consultation details"""
-    doctor = models.OneToOneField(DoctorProfile, on_delete=models.PROTECT)
+    doctor = models.OneToOneField(DoctorProfile, on_delete=models.PROTECT, related_name='consultation_detail')
 
     # offline consultation
     offline_consultation_fee = models.PositiveIntegerField(null=True, blank=True)
