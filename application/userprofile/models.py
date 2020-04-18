@@ -6,7 +6,8 @@ from django.core.validators import FileExtensionValidator
 
 from common.models import (BaseProfileModel, BaseModel, Qualification,
                            Specialization, Research, Language, BloodGroup,
-                           State, Discipline, RegistrationAuthority)
+                           State, Discipline, RegistrationAuthority,
+                           Disease, Surgery, Allergy, Immunization, Lifestyle)
 from organization.models import Organization
 from helper.validators import mobile_validator
 
@@ -33,6 +34,15 @@ ID_CARD_TYPE = (('', ' -- '),
                 (VOTER_ID_CARD, 'Voter ID Card '),
                 (PAN_CARD, 'Pan Card'),
                 (COMPANY_ID_CARD, 'Company ID Card'),)
+
+SELF, FATHER, MOTHER, SPOUSE, CHILD, OTHER = 'se', 'fa', 'mo', 'sp', 'ch', 'ot'
+RELATIONSHIP = (('', ' -- '),
+                (SELF, 'Self'),
+                (FATHER, 'Father'),
+                (MOTHER, 'Mother'),
+                (SPOUSE, 'Spouse'),
+                (CHILD, 'Child'),
+                (OTHER, 'Other'))
 
 
 # Profiles
@@ -61,19 +71,27 @@ class DoctorProfile(BaseProfileModel):
 
 class PatientProfile(BaseProfileModel):
     # TODO- handling for multiple prescription and test reports
-    case_summary = models.TextField(null=True, blank=True)
-    blood_group = models.ForeignKey(BloodGroup, null=True, blank=True, on_delete=models.PROTECT)
+    problem_summary = models.TextField(null=True, blank=True)
+    blood_group = models.ForeignKey(BloodGroup, null=True, blank=True,
+                                    on_delete=models.PROTECT, related_name='patients')
     weight = models.PositiveIntegerField(help_text="in Kilogram", null=True, blank=True)
     height = models.PositiveIntegerField(help_text="in Centimeters", null=True, blank=True)
     alternate_mobile_no = models.PositiveIntegerField(null=True, blank=True)
     profile_pic = models.FileField(upload_to='documents/patient/', null=True, blank=True)
-    # languages_can_speak = models.ManyToManyField(Language, blank=True)
-    occupation = models.CharField(max_length=50, blank=True, null=True)
+    occupation = models.CharField(max_length=100, blank=True, null=True)
     identity_card_type = models.CharField(max_length=3, choices=ID_CARD_TYPE, default='')
     identity_card_no = models.CharField(max_length=50, null=True, blank=True)
-    referred_by = models.CharField(max_length=70, blank=True, null=True)
-    have_mediclaim = models.BooleanField(default=False)
+    referred_by = models.CharField(max_length=100, blank=True, null=True)
+    medi_insurance = models.BooleanField(default=False)
     dob = models.DateField(max_length=8, blank=True, null=True)
+    relationship_with_user = models.CharField(max_length=2, choices=RELATIONSHIP, default='')
+    existing_disease = models.ManyToManyField(Disease, related_name="patients", blank=True)
+    surgery = models.ManyToManyField(Surgery, related_name="patients", blank=True)
+    allergy = models.ManyToManyField(Allergy, related_name="patients", blank=True)
+    immunization = models.ManyToManyField(Immunization, related_name="patients", blank=True)
+    lifestyle = models.ManyToManyField(Lifestyle, related_name="patients", blank=True)
+    alcohol_addiction = models.BooleanField(default=False)
+    smoking_addiction = models.BooleanField(default=False)
 
     def __str__(self):
         return self.name
@@ -89,6 +107,10 @@ class HealthworkerProfile(BaseProfileModel):
     #medical_registration_certificate
     registration_certificate = models.FileField(upload_to='documents/healthworker/', null=True, blank=True)
     profile_pic = models.FileField(upload_to='documents/healthworker/', null=True, blank=True)
+    authority_registered_with = models.ForeignKey(RegistrationAuthority, null=True,
+                                                  blank=True, on_delete=models.PROTECT)
+    certification = models.CharField(max_length=200, null=True, blank=True)
+    achievement = models.CharField(max_length=200, null=True, blank=True)
 
     def __str__(self):
         return self.name
@@ -101,6 +123,10 @@ class MedicalRepresentative(BaseProfileModel):
     registration_certificate = models.FileField(upload_to='documents/medicalrepresentative/', null=True, blank=True)
     profile_pic = models.FileField(upload_to='documents/medicalrepresentative/', null=True, blank=True)
     # languages_can_speak = models.ManyToManyField(Language, blank=True)
+    # medical_registration_certificate
+    authority_registered_with = models.ForeignKey(RegistrationAuthority, null=True,
+                                                  blank=True, on_delete=models.PROTECT)
+    achievements = models.CharField(max_length=150, null=True, blank=True)
 
     def __str__(self):
         return self.name
@@ -177,7 +203,7 @@ class OutdoorAvailability(BaseAvailability):
 
 class MasterConsultationFeeDiscountDetails(BaseModel):
     """Default consultation details. Will be applicable if not given specific consultation details"""
-    doctor = models.OneToOneField(DoctorProfile, on_delete=models.PROTECT)
+    doctor = models.OneToOneField(DoctorProfile, on_delete=models.PROTECT, related_name='consultation_detail')
 
     # offline consultation
     offline_consultation_fee = models.PositiveIntegerField(null=True, blank=True)

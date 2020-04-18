@@ -11,7 +11,8 @@ def decode_base64(filedata):
         file_ext = filedata.get('fileext')
         file_size = filedata.get('filesize')
         decoded_file = filedata.get('base64')
-
+        if 'base64' in decoded_file:
+            decoded_file = decoded_file.split('base64')[-1]
         data_file = ContentFile(b64decode(decoded_file), file_name)
         return data_file
 

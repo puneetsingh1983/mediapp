@@ -6,7 +6,7 @@ from django.contrib import admin
 from .models import (
     Qualification, Research, BloodGroup, State, Country,
     Specialization, Address, Language, Discipline, RegistrationAuthority,
-    Accreditation)
+    Accreditation, Disease, Surgery, Allergy, Immunization, Lifestyle)
 
 # Register your models here.
 @admin.register(Qualification)
@@ -61,4 +61,29 @@ class RegistrationAuthorityAdmin(admin.ModelAdmin):
 
 @admin.register(Accreditation)
 class AccreditationAdmin(admin.ModelAdmin):
+    pass
+
+
+@admin.register(Disease)
+class DiseaseAdmin(admin.ModelAdmin):
+    pass
+
+
+@admin.register(Surgery)
+class SurgeryAdmin(admin.ModelAdmin):
+    pass
+
+
+@admin.register(Allergy)
+class AllergyAdmin(admin.ModelAdmin):
+    pass
+
+
+@admin.register(Immunization)
+class ImmunizationAdmin(admin.ModelAdmin):
+    pass
+
+
+@admin.register(Lifestyle)
+class LifestyleAdmin(admin.ModelAdmin):
     pass
