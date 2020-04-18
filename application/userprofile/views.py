@@ -23,7 +23,7 @@ from .filters import DoctorFilter, HealthworkerFilter, PatientFilter
 from common.models import Address, BloodGroup, RegistrationAuthority
 from helper.file_handler import decode_base64
 from authentication.models import AppUserModel as UserModel, DOCTOR, HEALTH_WORKER, PATIENT, MED_REP
-from .utils import validate_n_get, bulk_create_get
+from .utils import validate_n_get, bulk_create_get, build_doc_dict
 from helper.permissions import IsSelfOrIsAdministrator
 from helper.address_util import build_address, get_state
 from helper.exception_response_handlers import (
@@ -200,10 +200,11 @@ class DoctorProfileViewSet(ModelViewSet):
     @action(methods=['GET'], detail=True, url_name="availabilities")
     def availabilities(self, request, pk=None):
         instance = self.get_object()
+        consultation_fee_details = MasterConsultationFeeDiscountDetails.objects.filter(doctor_id=instance.id)
         return Response(data={'online': instance.doctor_onlineavailability.values(),
                               'offline': instance.doctor_offlineavailability.values(),
                               'outdoor': instance.doctor_outdooravailability.values(),
-                              'consultation': instance.consultation_details.values(),
+                              'consultation': consultation_fee_details,
                               }, status=status.HTTP_200_OK)
 
     # @action(methods=['POST'], detail=True, url_path="create-availabilities",
@@ -531,10 +532,12 @@ class UploadProfileDocuements(APIView):
     @transaction.atomic
     @BadRequestParamResponseHandler
     def post(self, request, format=None):
-        profile_id = request.data.get('profile_id')
+        profile_id = request.data.get('profile_id', None)
         profile_type = request.data.get('profile_type')
-        reg_certificate = request.data.get('registration_certificate')
+        reg_certificate = request.data.get('registration_certificate', None)
         profile_pic = request.data.get('profile_pic')
+        del_reg_certificate = request.data.get('delete_registration_certificate', False)
+        del_profile_pic = request.data.get('delete_profile_pic', False)
 
         error_msg = []
         if not profile_id:
@@ -547,22 +550,14 @@ class UploadProfileDocuements(APIView):
         reg_certificate = reg_certificate and decode_base64(reg_certificate)
         profile_pic = profile_pic and decode_base64(profile_pic)
         try:
-            fields = {}
             if profile_type == DOCTOR:
                 profile = DoctorProfile.objects.get(id=profile_id)
-                fields = dict(registration_certificate=reg_certificate,
-                               profile_pic=profile_pic)
             elif profile_type == HEALTH_WORKER:
                 profile = HealthworkerProfile.objects.get(id=profile_id)
-                fields = dict(registration_certificate=reg_certificate,
-                              profile_pic=profile_pic)
             elif profile_type == PATIENT:
                 profile = PatientProfile.objects.get(id=profile_id)
-                fields = dict(profile_pic=profile_pic)
             elif profile_type == MED_REP:
                 profile = MedicalRepresentative.objects.get(id=profile_id)
-                fields = dict(registration_certificate=reg_certificate,
-                              profile_pic=profile_pic)
         except (DoctorProfile.DoesNotExist,
                 HealthworkerProfile.DoesNotExist,
                 PatientProfile.DoesNotExist,
@@ -570,6 +565,10 @@ class UploadProfileDocuements(APIView):
             print (exp)
             raise DoesNotExistInSystemException(profile_type, profile_id)
 
+        fields = build_doc_dict(reg_certificate=reg_certificate,
+                                profile_pic=profile_pic,
+                                del_reg_certificate=del_reg_certificate,
+                                del_profile_pic=del_profile_pic)
         profile.__dict__.update(**fields)
         profile.save()
         return Response(
