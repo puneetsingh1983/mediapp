@@ -4,7 +4,9 @@ from django.conf.urls import url, include
 from rest_framework import routers
 from .views import (
     DoctorProfileViewSet, HealthworkerProfileViewSet,
-    PatientProfileViewSet, MRProfileViewSet, AvailabilityAPIView, TestModelBase64ViewSet)
+    PatientProfileViewSet, MRProfileViewSet, AvailabilityAPIView,
+    UploadProfileDocuements, TestModelBase64ViewSet)
+from django.conf import settings
 
 
 router = routers.DefaultRouter()
@@ -20,6 +22,7 @@ router.register(r'testModelBase64', TestModelBase64ViewSet)
 # router1.register(r'outdoor', OutdoorAvailabilityAPIView)
 
 urlpatterns = [
-    url(r'^api/v1/profile/', include(router.urls)),
-    url(r'^api/v1/availability/', AvailabilityAPIView.as_view()),
+    url(r'^api/{}/profile/'.format(settings.API_VERSION,), include(router.urls)),
+    url(r'^api/{}/availability/'.format(settings.API_VERSION,), AvailabilityAPIView.as_view()),
+    url(r'api/{}/uploadprofiledocs/'.format(settings.API_VERSION,), UploadProfileDocuements.as_view())
 ]

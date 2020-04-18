@@ -12,7 +12,7 @@ import os
 from django.core.wsgi import get_wsgi_application
 import sys
 
-sys.path.append(r'/home/kashyap41_lm/virtualenvs/mediapp/')
+sys.path.append(r'/home/kashyap41_lm/virtualenvs/mediapp-djanog-2/')
 sys.path.append(r'/home/kashyap41_lm/mediapp/application/')
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "application.settings")

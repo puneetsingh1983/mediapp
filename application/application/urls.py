@@ -31,8 +31,8 @@ api_endpoints = get_swagger_view(title='Application API Endpoints')
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
-    url(r'^api/v1/api-token-auth/', obtain_jwt_token),
-    url(r'^api/v1/verify-jwt-token/', verify_jwt_token),
+    url(r'^api/{}/api-token-auth/'.format(settings.API_VERSION,), obtain_jwt_token),
+    url(r'^api/{}/verify-jwt-token/'.format(settings.API_VERSION,), verify_jwt_token),
     url(r'^docs/', api_endpoints)
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 

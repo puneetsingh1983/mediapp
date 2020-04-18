@@ -12,22 +12,23 @@ from rest_framework.decorators import action
 from .models import (
     DoctorProfile, HealthworkerProfile, PatientProfile,
     OfflineAvailability, OutdoorAvailability, OnlineAvailability,
-    ConsultationDetails, AvailabilitySchedule,
+    MasterConsultationFeeDiscountDetails, AvailabilitySchedule,
     MedicalRepresentative, TestModelBase64)
 from .serializers import (
     DoctorProfileSerializer, HealthworkerProfileSerializer,
     OfflineAvailabilitySerializer, OnlineAvailabilitySerializer,
-    OutdoorAvailabilitySerializer, ConsultationDetailsSerializer,
+    OutdoorAvailabilitySerializer, MasterConsultationFeeDiscountDetailsSerializer,
     PatientProfileSerializer, MRProfileSerializer, TestModelBase64Serializer)
 from .filters import DoctorFilter, HealthworkerFilter, PatientFilter
 from common.models import Address, BloodGroup, RegistrationAuthority
 from helper.file_handler import decode_base64
-from authentication.models import AppUserModel as UserModel
+from authentication.models import AppUserModel as UserModel, DOCTOR, HEALTH_WORKER, PATIENT, MED_REP
 from .utils import validate_n_get, bulk_create_get
 from helper.permissions import IsSelfOrIsAdministrator
 from helper.address_util import build_address, get_state
 from helper.exception_response_handlers import (
-    MissingParameterInRequestException, BadRequestParamResponseHandler)
+    MissingParameterInRequestException, BadRequestParamResponseHandler,
+    DoesNotExistInSystemException)
 
 
 # views
@@ -77,6 +78,7 @@ class DoctorProfileViewSet(ModelViewSet):
 
         (qualifications, specializations,
          associated_with, languages_can_speak, discipline) = (None, None, None, None, None)
+        other_qualifications = None
 
         if request_data.get("qualification"):
             qualifications = validate_n_get(
@@ -99,7 +101,7 @@ class DoctorProfileViewSet(ModelViewSet):
                 class_name='Discipline', records_ids=request_data.pop("discipline"))
 
         for key in ('qualification', 'specialization', 'associated_with',
-                    'languages_can_speak', 'discipline', 'research'):
+                    'languages_can_speak', 'discipline', 'research', 'other_qualifications'):
             try:
                 request_data.pop(key)
             except:
@@ -243,6 +245,7 @@ class HealthworkerProfileViewSet(ModelViewSet):
 
         resume = request_data.get('resume')
         request_data['resume'] = resume and decode_base64(resume) or None
+        request_data['unique_id'] = uuid.uuid4()
 
         try:
             request_data['address'] = build_address(request_data.get('address'))
@@ -335,6 +338,7 @@ class PatientProfileViewSet(ModelViewSet):
         request_data['height'] = request_data.get('height')
         request_data['aadhaar_no'] = request_data.get('aadhaar_no')
         request_data['alternate_mobile_no'] = request_data.get('alternate_mobile_no')
+        request_data['unique_id'] = uuid.uuid4()
 
         try:
             request_data['address'] = build_address(request_data.get('address'))
@@ -508,7 +512,7 @@ class AvailabilityAPIView(APIView):
 
         # consultation details
         if default_consultation_details:
-            obj, created = ConsultationDetails.objects.update_or_create(doctor=doctor,
+            obj, created = MasterConsultationFeeDiscountDetails.objects.update_or_create(doctor=doctor,
                                                                         defaults=default_consultation_details)
 
         return Response(
@@ -522,16 +526,54 @@ class AvailabilityAPIView(APIView):
         request_data = request.data.copy()
 
 
-class OfflineAvailabilityAPIView(ModelViewSet):
-    queryset = OfflineAvailability.objects.all()
-    serializer_class = OfflineAvailabilitySerializer
-    permission_classes = (IsAuthenticated, IsSelfOrIsAdministrator)
+class UploadProfileDocuements(APIView):
+    """API View to upload profile pic and registration certificate"""
+    @transaction.atomic
+    @BadRequestParamResponseHandler
+    def post(self, request, format=None):
+        profile_id = request.data.get('profile_id')
+        profile_type = request.data.get('profile_type')
+        reg_certificate = request.data.get('registration_certificate')
+        profile_pic = request.data.get('profile_pic')
 
+        error_msg = []
+        if not profile_id:
+            error_msg.append('profile_id')
+        if not profile_type:
+            error_msg.append('profile_type')
+        if error_msg:
+            raise MissingParameterInRequestException('/'.join(error_msg))
 
-class OutdoorAvailabilityAPIView(ModelViewSet):
-    queryset = OutdoorAvailability.objects.all()
-    serializer_class = OutdoorAvailabilitySerializer
-    permission_classes = (IsAuthenticated, IsSelfOrIsAdministrator)
+        reg_certificate = reg_certificate and decode_base64(reg_certificate)
+        profile_pic = profile_pic and decode_base64(profile_pic)
+        try:
+            fields = {}
+            if profile_type == DOCTOR:
+                profile = DoctorProfile.objects.get(id=profile_id)
+                fields = dict(registration_certificate=reg_certificate,
+                               profile_pic=profile_pic)
+            elif profile_type == HEALTH_WORKER:
+                profile = HealthworkerProfile.objects.get(id=profile_id)
+                fields = dict(registration_certificate=reg_certificate,
+                              profile_pic=profile_pic)
+            elif profile_type == PATIENT:
+                profile = PatientProfile.objects.get(id=profile_id)
+                fields = dict(profile_pic=profile_pic)
+            elif profile_type == MED_REP:
+                profile = MedicalRepresentative.objects.get(id=profile_id)
+                fields = dict(registration_certificate=reg_certificate,
+                              profile_pic=profile_pic)
+        except (DoctorProfile.DoesNotExist,
+                HealthworkerProfile.DoesNotExist,
+                PatientProfile.DoesNotExist,
+                MedicalRepresentative.DoesNotExist) as exp:
+            print (exp)
+            raise DoesNotExistInSystemException(profile_type, profile_id)
+
+        profile.__dict__.update(**fields)
+        profile.save()
+        return Response(
+            data={'success': True, 'result': {}}, status=status.HTTP_201_CREATED)
 
 
 class TestModelBase64ViewSet(ModelViewSet):

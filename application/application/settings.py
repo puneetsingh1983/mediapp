@@ -37,7 +37,7 @@ INSTALLED_APPS = [
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
-    'django.contrib.staticfiles',
+    'django.contrib.staticfiles', # removed in Django 3.0
     'rest_framework',
     'rest_framework_swagger',
     'django_filters',
@@ -152,7 +152,8 @@ REST_FRAMEWORK = {
         'django_filters.rest_framework.DjangoFilterBackend',
     ),
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
-    'PAGE_SIZE': 100
+    'PAGE_SIZE': 100,
+    'DEFAULT_SCHEMA_CLASS':'rest_framework.schemas.coreapi.AutoSchema'
 }
 
 import datetime
@@ -208,3 +209,5 @@ DEFAULT_FROM_EMAIL = 'no.reply.mediapp@gmail.com'
 APPEND_SLASH = False
 
 TOKEN_VALIDITY_PERIOD = 120 # valid for 2 mins
+
+API_VERSION = 'v1'
