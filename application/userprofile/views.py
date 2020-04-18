@@ -23,7 +23,7 @@ from .filters import DoctorFilter, HealthworkerFilter, PatientFilter
 from common.models import Address, BloodGroup, RegistrationAuthority
 from helper.file_handler import decode_base64
 from authentication.models import AppUserModel as UserModel, DOCTOR, HEALTH_WORKER, PATIENT, MED_REP
-from .utils import validate_n_get, bulk_create_get
+from .utils import validate_n_get, bulk_create_get, build_doc_dict
 from helper.permissions import IsSelfOrIsAdministrator
 from helper.address_util import build_address, get_state
 from helper.exception_response_handlers import (
@@ -531,10 +531,12 @@ class UploadProfileDocuements(APIView):
     @transaction.atomic
     @BadRequestParamResponseHandler
     def post(self, request, format=None):
-        profile_id = request.data.get('profile_id')
+        profile_id = request.data.get('profile_id', None)
         profile_type = request.data.get('profile_type')
-        reg_certificate = request.data.get('registration_certificate')
+        reg_certificate = request.data.get('registration_certificate', None)
         profile_pic = request.data.get('profile_pic')
+        del_reg_certificate = request.data.get('delete_registration_certificate', False)
+        del_profile_pic = request.data.get('delete_profile_pic', False)
 
         error_msg = []
         if not profile_id:
@@ -547,22 +549,14 @@ class UploadProfileDocuements(APIView):
         reg_certificate = reg_certificate and decode_base64(reg_certificate)
         profile_pic = profile_pic and decode_base64(profile_pic)
         try:
-            fields = {}
             if profile_type == DOCTOR:
                 profile = DoctorProfile.objects.get(id=profile_id)
-                fields = dict(registration_certificate=reg_certificate,
-                               profile_pic=profile_pic)
             elif profile_type == HEALTH_WORKER:
                 profile = HealthworkerProfile.objects.get(id=profile_id)
-                fields = dict(registration_certificate=reg_certificate,
-                              profile_pic=profile_pic)
             elif profile_type == PATIENT:
                 profile = PatientProfile.objects.get(id=profile_id)
-                fields = dict(profile_pic=profile_pic)
             elif profile_type == MED_REP:
                 profile = MedicalRepresentative.objects.get(id=profile_id)
-                fields = dict(registration_certificate=reg_certificate,
-                              profile_pic=profile_pic)
         except (DoctorProfile.DoesNotExist,
                 HealthworkerProfile.DoesNotExist,
                 PatientProfile.DoesNotExist,
@@ -570,6 +564,10 @@ class UploadProfileDocuements(APIView):
             print (exp)
             raise DoesNotExistInSystemException(profile_type, profile_id)
 
+        fields = build_doc_dict(reg_certificate=reg_certificate,
+                                profile_pic=profile_pic,
+                                del_reg_certificate=del_reg_certificate,
+                                del_profile_pic=del_profile_pic)
         profile.__dict__.update(**fields)
         profile.save()
         return Response(

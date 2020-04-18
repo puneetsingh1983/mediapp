@@ -67,3 +67,15 @@ def bulk_create_get(class_name, values):
 #         # state=data_dict.get("state"))
 #     return address
 
+def build_doc_dict(reg_certificate, profile_pic, del_reg_certificate, del_profile_pic):
+    fields = {}
+    if reg_certificate:
+        fields['registration_certificate'] = reg_certificate
+    if profile_pic:
+        fields['profile_pic'] = profile_pic
+    if del_reg_certificate:
+        fields['registration_certificate'] = None
+    if del_profile_pic:
+        fields['profile_pic'] = None
+
+    return fields

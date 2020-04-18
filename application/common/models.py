@@ -182,3 +182,60 @@ class Accreditation(ModelMixinForTextField, models.Model):
 
     def __str__(self):
         return self.text
+
+
+class Disease(ModelMixinForTextField, models.Model):
+    text = models.CharField(max_length=50)
+    description = models.CharField(max_length=150)
+
+    def __str__(self):
+        return self.text
+
+
+class Disease(ModelMixinForTextField, models.Model):
+    text = models.CharField(max_length=50)
+    description = models.CharField(max_length=150)
+
+    def __str__(self):
+        return self.text
+
+
+class Surgery(ModelMixinForTextField, models.Model):
+    text = models.CharField(max_length=50)
+    description = models.CharField(max_length=150)
+
+    def __str__(self):
+        return self.text
+
+
+class Allergy(ModelMixinForTextField, models.Model):
+    text = models.CharField(max_length=50)
+    description = models.CharField(max_length=150)
+
+    def __str__(self):
+        return self.text
+
+
+class Immunization(ModelMixinForTextField, models.Model):
+    text = models.CharField(max_length=50)
+    description = models.CharField(max_length=150)
+
+    def __str__(self):
+        return self.text
+
+
+class Lifestyle(ModelMixinForTextField, models.Model):
+    text = models.CharField(max_length=50)
+    description = models.CharField(max_length=150)
+
+    def __str__(self):
+        return self.text
+
+
+class Lifestyle(ModelMixinForTextField, models.Model):
+    text = models.CharField(max_length=50)
+    description = models.CharField(max_length=150)
+
+    def __str__(self):
+        return self.text
+
