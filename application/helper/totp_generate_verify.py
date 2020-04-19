@@ -31,7 +31,8 @@ class TOTPVerification(object):
 
     def totp_obj(self):
         # create a TOTP object
-        totp = TOTP(key=self.key,
+        key = bytes(self.key, 'utf-8')
+        totp = TOTP(key=key,
                     step=self.token_validity_period,
                     digits=self.number_of_digits)
         # the current time will be used to generate a counter

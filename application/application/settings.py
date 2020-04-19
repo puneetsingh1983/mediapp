@@ -202,7 +202,7 @@ EMAIL_USE_TLS = True
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_HOST_USER = 'no.reply.mediapp@gmail.com'
-EMAIL_HOST_PASSWORD = 'mediapp@1'
+EMAIL_HOST_PASSWORD = 'mediapp007@'
 EMAIL_PORT = 587
 DEFAULT_FROM_EMAIL = 'no.reply.mediapp@gmail.com'
 
