@@ -3,7 +3,7 @@ from __future__ import unicode_literals
 
 from django.contrib import admin
 
-from .models import (Organization, OrganizationType, Pathalogy, PathlogyLabType)
+from .models import (Organization, OrganizationType, Pathalogy)
 
 
 # Register your models here.
@@ -21,7 +21,3 @@ class OrganizationTypeAdmin(admin.ModelAdmin):
 class PathalogyAdmin(admin.ModelAdmin):
     pass
 
-
-@admin.register(PathlogyLabType)
-class PathlogyLabTypeAdmin(admin.ModelAdmin):
-    pass
