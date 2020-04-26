@@ -6,8 +6,9 @@ from django.core.validators import FileExtensionValidator
 
 from common.models import (BaseProfileModel, BaseModel, Qualification,
                            Specialization, Research, Language, BloodGroup,
-                           State, Discipline, RegistrationAuthority,
-                           Disease, Surgery, Allergy, Immunization, Lifestyle)
+                           State, Discipline, RegistrationAuthority, Injury,
+                           Disease, Surgery, Allergy, Immunization, Lifestyle,
+                           AlcoholAddiction, HealthWorkerRegistrationAuthority)
 from organization.models import Organization
 from helper.validators import mobile_validator
 
@@ -90,8 +91,10 @@ class PatientProfile(BaseProfileModel):
     allergy = models.ManyToManyField(Allergy, related_name="patients", blank=True)
     immunization = models.ManyToManyField(Immunization, related_name="patients", blank=True)
     lifestyle = models.ManyToManyField(Lifestyle, related_name="patients", blank=True)
-    alcohol_addiction = models.BooleanField(default=False)
+    alcohol_addiction = models.ForeignKey(AlcoholAddiction, null=True, blank=True,
+                                    on_delete=models.PROTECT, related_name='patients')
     smoking_addiction = models.BooleanField(default=False)
+    injury = models.ManyToManyField(Injury, related_name="patients", blank=True)
 
     def __str__(self):
         return self.name
@@ -107,7 +110,7 @@ class HealthworkerProfile(BaseProfileModel):
     #medical_registration_certificate
     registration_certificate = models.FileField(upload_to='documents/healthworker/', null=True, blank=True)
     profile_pic = models.FileField(upload_to='documents/healthworker/', null=True, blank=True)
-    authority_registered_with = models.ForeignKey(RegistrationAuthority, null=True,
+    authority_registered_with = models.ForeignKey(HealthWorkerRegistrationAuthority, null=True,
                                                   blank=True, on_delete=models.PROTECT)
     certification = models.CharField(max_length=200, null=True, blank=True)
     achievement = models.CharField(max_length=200, null=True, blank=True)

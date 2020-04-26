@@ -3,7 +3,9 @@ from rest_framework.serializers import ModelSerializer
 from .models import (Country, State, Qualification,
                      Language, Specialization,
                      BloodGroup, Address, Research, Discipline,
-                     RegistrationAuthority, Accreditation)
+                     RegistrationAuthority, Accreditation, Disease,
+                     Surgery, Allergy, Immunization, Lifestyle,
+                     AlcoholAddiction, Injury)
 
 
 class AddressSerializer(ModelSerializer):
@@ -69,4 +71,46 @@ class RegistrationAuthoritySerializer(ModelSerializer):
 class AccreditationSerializer(ModelSerializer):
     class Meta:
         model = Accreditation
+        fields = '__all__'
+
+
+class DiseaseSerializer(ModelSerializer):
+    class Meta:
+        model = Disease
+        fields = '__all__'
+
+
+class SurgerySerializer(ModelSerializer):
+    class Meta:
+        model = Surgery
+        fields = '__all__'
+
+
+class AllergySerializer(ModelSerializer):
+    class Meta:
+        model = Allergy
+        fields = '__all__'
+
+
+class ImmunizationSerializer(ModelSerializer):
+    class Meta:
+        model = Immunization
+        fields = '__all__'
+
+
+class LifestyleSerializer(ModelSerializer):
+    class Meta:
+        model = Lifestyle
+        fields = '__all__'
+
+
+class AlcoholAddictionSerializer(ModelSerializer):
+    class Meta:
+        model = AlcoholAddiction
+        fields = '__all__'
+
+
+class InjurySerializer(ModelSerializer):
+    class Meta:
+        model = Injury
         fields = '__all__'
