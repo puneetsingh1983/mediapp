@@ -232,10 +232,33 @@ class Lifestyle(ModelMixinForTextField, models.Model):
         return self.text
 
 
-class Lifestyle(ModelMixinForTextField, models.Model):
+class HealthWorkerRegistrationAuthority(ModelMixinForTextField, models.Model):
     text = models.CharField(max_length=50)
     description = models.CharField(max_length=150)
 
     def __str__(self):
         return self.text
 
+
+class AlcoholAddiction(ModelMixinForTextField, models.Model):
+    text = models.CharField(max_length=50)
+    description = models.CharField(max_length=150)
+
+    def __str__(self):
+        return self.text
+
+
+class Injury(ModelMixinForTextField, models.Model):
+    text = models.CharField(max_length=50)
+    description = models.CharField(max_length=150)
+
+    def __str__(self):
+        return self.text
+
+
+class PathlogyLabType(ModelMixinForTextField, models.Model):
+    text = models.CharField(max_length=50)
+    description = models.CharField(max_length=150)
+
+    def __str__(self):
+        return self.text

@@ -8,12 +8,16 @@ from rest_framework import status
 
 from .models import (Country, State, Qualification, Accreditation,
                      Language, Specialization, Research,
-                     BloodGroup, Address, Discipline, RegistrationAuthority)
+                     BloodGroup, Address, Discipline, RegistrationAuthority,
+                     Disease, Surgery, Allergy, Immunization, Lifestyle,
+                     AlcoholAddiction, Injury)
 from .serializers import (CountrySerializer, StateSerializer, AccreditationSerializer,
                           QualificationSerializer, LanguageSerializer,
                           SpecializationSerializer, ResearchSerializer,
                           BloodGroupSerializer, AddressSerializer, DisciplineSerializer,
-                          RegistrationAuthoritySerializer)
+                          RegistrationAuthoritySerializer, DiseaseSerializer,
+                          SurgerySerializer, AllergySerializer, ImmunizationSerializer,
+                          LifestyleSerializer, AlcoholAddictionSerializer, InjurySerializer)
 from organization.models import OrganizationType
 from organization.serializers import OrganizationTypeSerializer
 
@@ -121,6 +125,13 @@ class StaticObjectsView(APIView):
             OrganizationType.objects.all(), many=True)
         accreditation = AccreditationSerializer(
             Accreditation.objects.all(), many=True)
+        disease = DiseaseSerializer(Disease.objects.all(), many=True)
+        surgery = SurgerySerializer(Surgery.objects.all(), many=True)
+        allergy = AllergySerializer(Allergy.objects.all(), many=True)
+        immuization = ImmunizationSerializer(Immunization.objects.all(), many=True)
+        lifestyle = LifestyleSerializer(Lifestyle.objects.all(), many=True)
+        alcohol_addiction = AlcoholAddictionSerializer(AlcoholAddiction.objects.all(), many=True)
+        injury = InjurySerializer(Injury.objects.all(), many=True)
         research = ResearchSerializer(Research.objects.all(), many=True)
 
         return Response(data={'registered_authority': registeration_auths.data,
@@ -134,4 +145,12 @@ class StaticObjectsView(APIView):
                               'org_type': organization_type.data,
                               'accreditation': accreditation.data,
                               'research': research.data,
+                              'disease': disease.data,
+                              'surgery': surgery.data,
+                              'allergy': allergy.data,
+                              'immuization': immuization.data,
+                              'lifestyle': lifestyle.data,
+                              'alcohol_addiction': alcohol_addiction.data,
+                              'injury': injury.data,
+
                               }, status=status.HTTP_200_OK)
