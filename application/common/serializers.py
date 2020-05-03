@@ -5,7 +5,7 @@ from .models import (Country, State, Qualification,
                      BloodGroup, Address, Research, Discipline,
                      RegistrationAuthority, Accreditation, Disease,
                      Surgery, Allergy, Immunization, Lifestyle,
-                     AlcoholAddiction, Injury)
+                     AlcoholAddiction, Injury, PathlogyLabType)
 
 
 class AddressSerializer(ModelSerializer):
@@ -113,4 +113,10 @@ class AlcoholAddictionSerializer(ModelSerializer):
 class InjurySerializer(ModelSerializer):
     class Meta:
         model = Injury
+        fields = '__all__'
+
+
+class PathologyTypeSerializer(ModelSerializer):
+    class Meta:
+        model = PathlogyLabType
         fields = '__all__'

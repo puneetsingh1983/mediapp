@@ -11,39 +11,8 @@ from common.models import (BaseProfileModel, BaseModel, Qualification,
                            AlcoholAddiction, HealthWorkerRegistrationAuthority)
 from organization.models import Organization
 from helper.validators import mobile_validator
-
-
-MODE_1 = 'online'
-MODE_2 = 'offline'
-MODE_3 = 'out_door'
-
-AVAILABILITY_MODE = ((MODE_1, 'Online'),
-                     (MODE_2, 'Offline'),
-                     (MODE_3, 'Out Door'))
-
-
-AADHAAR_CARD = 'uid'
-PASSPORT = 'pp'
-DRIVING_LICENSE = 'dl'
-VOTER_ID_CARD = 'vid'
-PAN_CARD = 'pan'
-COMPANY_ID_CARD = 'cid'
-ID_CARD_TYPE = (('', ' -- '),
-                (AADHAAR_CARD, 'Aadhaar Card (UID)'),
-                (PASSPORT, 'Passport'),
-                (DRIVING_LICENSE, 'Driving License'),
-                (VOTER_ID_CARD, 'Voter ID Card '),
-                (PAN_CARD, 'Pan Card'),
-                (COMPANY_ID_CARD, 'Company ID Card'),)
-
-SELF, FATHER, MOTHER, SPOUSE, CHILD, OTHER = 'se', 'fa', 'mo', 'sp', 'ch', 'ot'
-RELATIONSHIP = (('', ' -- '),
-                (SELF, 'Self'),
-                (FATHER, 'Father'),
-                (MOTHER, 'Mother'),
-                (SPOUSE, 'Spouse'),
-                (CHILD, 'Child'),
-                (OTHER, 'Other'))
+from common.constants import *
+from common.constants import AVAILABILITY_MODE, ID_CARD_TYPE, RELATIONSHIP
 
 
 # Profiles
