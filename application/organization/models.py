@@ -52,7 +52,7 @@ class Organization(BaseModel):
         super(Organization, self).save(*args, **kwargs)
 
 
-class Pathalogy(BaseModel):
+class Pathology(BaseModel):
     """Organization Model. Ex- Hospital, Clinic, Digital Clinic or Pharmacy or Medical Store"""
     name = models.CharField(max_length=100)
     institution = models.CharField(max_length=100)
@@ -72,8 +72,7 @@ class Pathalogy(BaseModel):
                                   help_text="Required for hospitals/clinics/medical-stores")
     head_of_lab = models.CharField(max_length=50, null=True, blank=True)
     specialization = models.ManyToManyField(Specialization, blank=True)
-    license_doc = models.FileField(upload_to='documents/org/%Y/%m/%d/', null=True, blank=True)
-    org_type = models.ForeignKey(OrganizationType, on_delete=models.PROTECT)
+    license_doc = models.FileField(upload_to='documents/Pathology/%Y/%m/%d/', null=True, blank=True)
 
 
     def __str__(self):

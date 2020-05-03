@@ -1,5 +1,5 @@
 from rest_framework.serializers import ModelSerializer
-from .models import Organization, OrganizationType
+from .models import Organization, OrganizationType, Pathology
 from common.serializers import AddressSerializer
 
 
@@ -14,4 +14,13 @@ class OrganizationSerializer(ModelSerializer):
 class OrganizationTypeSerializer(ModelSerializer):
     class Meta:
         model = OrganizationType
+        fields = '__all__'
+
+
+class PathologySerializer(ModelSerializer):
+    address = AddressSerializer()
+    # PathlogyLabType
+
+    class Meta:
+        model = Pathology
         fields = '__all__'
