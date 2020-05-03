@@ -5,6 +5,7 @@ from rest_framework.views import APIView
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
+from .constants import ID_CARD_TYPE, RELATIONSHIP
 
 from .models import (Country, State, Qualification, Accreditation,
                      Language, Specialization, Research,
@@ -133,6 +134,8 @@ class StaticObjectsView(APIView):
         alcohol_addiction = AlcoholAddictionSerializer(AlcoholAddiction.objects.all(), many=True)
         injury = InjurySerializer(Injury.objects.all(), many=True)
         research = ResearchSerializer(Research.objects.all(), many=True)
+        id_card_type = [dict(id=x[0], text=x[1]) for x in ID_CARD_TYPE if x[0]]
+        relationships = [dict(id=x[0], text=x[1]) for x in RELATIONSHIP if x[0]]
 
         return Response(data={'registered_authority': registeration_auths.data,
                               'discipline': disciplines.data,
@@ -152,5 +155,6 @@ class StaticObjectsView(APIView):
                               'lifestyle': lifestyle.data,
                               'alcohol_addiction': alcohol_addiction.data,
                               'injury': injury.data,
-
+                              'id_card_type': id_card_type,
+                              'relationships': relationships
                               }, status=status.HTTP_200_OK)

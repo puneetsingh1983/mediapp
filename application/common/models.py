@@ -7,12 +7,7 @@ from django.db import models
 from django.utils.text import slugify
 
 from authentication.models import AppUserModel
-
-
-GENDER = (('-', ' -- '),
-          ('M', 'Male'),
-          ('F', 'Female'),
-          ('O', 'Other'))
+from common.constants import GENDER
 
 
 def generate_slug(value):
